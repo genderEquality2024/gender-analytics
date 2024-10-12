@@ -1,34 +1,18 @@
 <script setup lang="ts">
+import { getData, setData } from 'nuxt-storage/local-storage';
 const route = useRoute()
 const router = useRouter()
+// const cToken = checkToken()
 const appConfig = useAppConfig()
-const api = useApi()
 const { isHelpSlideoverOpen } = useDashboard()
-import type { FormError } from '#ui/types'
-import { getData, setData } from 'nuxt-storage/local-storage';
 
-const userToken = getData('userToken');
-if (userToken) {
-    router.push("/home")
-} else {
-    router.push("/")
-}
-
-const fields = [{
-  name: 'username',
-  type: 'text',
-  label: 'Username',
-  placeholder: 'Enter your username'
-}, {
-  name: 'password',
-  label: 'Password',
-  type: 'password',
-  placeholder: 'Enter your password'
-}, {
-  name: 'remember',
-  label: 'Remember me',
-  type: 'checkbox'
-}]
+// const userToken = getData('userToken');
+// console.log(userToken)
+// if (userToken) {
+//     router.push("/home")
+// } else {
+//     router.push("/")
+// }
 
 const links = [{
   id: 'home',
@@ -104,62 +88,60 @@ const groups = [{
 
 const defaultColors = ref(['green', 'teal', 'cyan', 'sky', 'blue', 'indigo', 'violet'].map(color => ({ label: color, chip: color, click: () => appConfig.ui.primary = color })))
 const colors = computed(() => defaultColors.value.map(color => ({ ...color, active: appConfig.ui.primary === color.label })))
-
-const btnLoading = ref<Boolean>(false)
-const validate = (state: any) => {
-  const errors: FormError[] = []
-  if (!state.username) errors.push({ path: 'username', message: 'Username is required' })
-  if (!state.password) errors.push({ path: 'password', message: 'Password is required' })
-  return errors
-}
-
-async function onSubmit (data: any) {
-  btnLoading.value = true
-  api.post("auth/login", data).then((res) => {
-    let response = {...res.data}
-    if(!response.error){
-      setData("userToken", response.jwt)
-      router.push("/home")
-    } else {
-      // show Error
-    }
-    btnLoading.value = false
-  })
-}
 </script>
 
 <template>
   <UDashboardLayout>
-    <UCard class="max-w-sm w-full">
-      <UAuthForm
-        :fields="fields"
-        :validate="validate"
-        align="top"
-        :ui="{ base: 'text-center', footer: 'text-center' }"
-        @submit="onSubmit"
-        :submitButton="{
-          loading: btnLoading
-        }"
+    <UDashboardPanel
+      :width="250"
+      :resizable="{ min: 200, max: 300 }"
+      collapsible
+    >
+      <UDashboardNavbar
+        class="!border-transparent"
+        :ui="{ left: 'flex-1' }"
       >
-        <template #icon>
-          <img src="/imgs/ASCT_logo2.png"  />
+        <template #left>
+          <TeamsDropdown />
         </template>
-        <template #title>
-          GENDER EQUALITY ANALYTICS
+      </UDashboardNavbar>
+
+      <UDashboardSidebar>
+        <template #header>
+          <UDashboardSearchButton />
         </template>
 
-        <template #password-hint>
-          <NuxtLink to="/" class="text-primary font-medium">Forgot password?</NuxtLink>
-        </template>
-        <!-- <template #validation>
-          <UAlert color="red" icon="i-heroicons-information-circle-20-solid" title="Error signing in" />
-        </template> -->
+        <UDashboardSidebarLinks :links="links" />
+
+        <!-- <UDivider />
+
+        <UDashboardSidebarLinks
+          :links="[{ label: 'Colors', draggable: true, children: colors }]"
+          @update:links="colors => defaultColors = colors"
+        /> -->
+
+        <div class="flex-1" />
+
+        <UDashboardSidebarLinks :links="footerLinks" />
+
+        <UDivider class="sticky bottom-0" />
+
         <template #footer>
-          By signing in, you agree to our <NuxtLink to="/" class="text-primary font-medium">Terms of Service</NuxtLink>.
+          <!-- ~/components/UserDropdown.vue -->
+          <UserDropdown />
         </template>
-      </UAuthForm>
-    </UCard>
+      </UDashboardSidebar>
+    </UDashboardPanel>
 
     <slot />
+
+    <!-- ~/components/HelpSlideover.vue -->
+    <HelpSlideover />
+    <!-- ~/components/NotificationsSlideover.vue -->
+    <NotificationsSlideover />
+
+    <ClientOnly>
+      <LazyUDashboardSearch :groups="groups" />
+    </ClientOnly>
   </UDashboardLayout>
 </template>

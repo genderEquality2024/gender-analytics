@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import nuxtStorage from 'nuxt-storage';
+const router = useRouter()
 const { isHelpSlideoverOpen } = useDashboard()
 const { isDashboardSearchModalOpen } = useUIState()
 const { metaSymbol } = useShortcuts()
@@ -14,9 +16,15 @@ const items = computed(() => [
     to: '/settings'
   }], [{
     label: 'Sign out',
+    click: signOutUser,
     icon: 'i-heroicons-arrow-left-on-rectangle'
   }]
 ])
+
+function signOutUser(){
+  nuxtStorage.localStorage.clear()
+  router.push('/')
+}
 </script>
 
 <template>
