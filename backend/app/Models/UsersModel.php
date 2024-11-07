@@ -54,15 +54,10 @@ class UsersModel extends Model
         $query = $this->db->table($this->table)->get();
         $results = $query->getResult('array');
 
-        
-
         $all = array_map(function($el){
-
             foreach($el as $key => $val){
                 $type = $this->db->table($this->typeTable)->where('id', $el['userType'])->get()->getRow();
                 $el['userTypeDescription'] = $type->description;
-                $branch = $this->db->table($this->branchTable)->where('id', $el['branchId'])->get()->getRow();
-                $el['branch'] = $branch->branchName;
             }
             return $el;
         }, $results);

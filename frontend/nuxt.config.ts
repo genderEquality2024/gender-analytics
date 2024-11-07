@@ -9,6 +9,8 @@ export default defineNuxtConfig({
     '@vueuse/nuxt'
   ],
 
+  ssr: false,
+
   ui: {
     safelistColors: ['primary', 'red', 'orange', 'green']
   },

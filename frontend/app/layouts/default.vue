@@ -8,11 +8,11 @@ import type { FormError } from '#ui/types'
 import { getData, setData } from 'nuxt-storage/local-storage';
 
 const userToken = getData('userToken');
-if (userToken) {
-    router.push("/home")
-} else {
-    router.push("/")
-}
+// if (userToken) {
+//     router.push("/home")
+// } else {
+//     router.push("/")
+// }
 
 const fields = [{
   name: 'username',

@@ -1,70 +1,3 @@
-<script setup lang="ts">
-import type { User } from '~/types'
-
-const defaultColumns = [{
-  key: 'id',
-  label: '#'
-}, {
-  key: 'name',
-  label: 'Name',
-  sortable: true
-}, {
-  key: 'email',
-  label: 'Email',
-  sortable: true
-}, {
-  key: 'location',
-  label: 'Location'
-}, {
-  key: 'status',
-  label: 'Status'
-}]
-
-const q = ref('')
-const selected = ref<User[]>([])
-const selectedColumns = ref(defaultColumns)
-const selectedStatuses = ref([])
-const selectedLocations = ref([])
-const sort = ref({ column: 'id', direction: 'asc' as const })
-const input = ref<{ input: HTMLInputElement }>()
-const isNewUserModalOpen = ref(false)
-
-const columns = computed(() => defaultColumns.filter(column => selectedColumns.value.includes(column)))
-
-const query = computed(() => ({ q: q.value, statuses: selectedStatuses.value, locations: selectedLocations.value, sort: sort.value.column, order: sort.value.direction }))
-
-const { data: users, pending } = await useFetch<User[]>('/api/users', { query, default: () => [] })
-
-const defaultLocations = users.value.reduce((acc, user) => {
-  if (!acc.includes(user.location)) {
-    acc.push(user.location)
-  }
-  return acc
-}, [] as string[])
-
-const defaultStatuses = users.value.reduce((acc, user) => {
-  if (!acc.includes(user.status)) {
-    acc.push(user.status)
-  }
-  return acc
-}, [] as string[])
-
-function onSelect(row: User) {
-  const index = selected.value.findIndex(item => item.id === row.id)
-  if (index === -1) {
-    selected.value.push(row)
-  } else {
-    selected.value.splice(index, 1)
-  }
-}
-
-defineShortcuts({
-  '/': () => {
-    input.value?.input?.focus()
-  }
-})
-</script>
-
 <template>
   <UDashboardPage>
     <UDashboardPanel grow>
@@ -153,20 +86,24 @@ defineShortcuts({
       >
         <template #name-data="{ row }">
           <div class="flex items-center gap-3">
-            <UAvatar
-              v-bind="row.avatar"
-              :alt="row.name"
-              size="xs"
-            />
+            <span class="text-gray-900 dark:text-white font-medium">
+              {{ `${row.firstName} ${row.lastName}` }}
+            </span>
+          </div>
+        </template>
 
-            <span class="text-gray-900 dark:text-white font-medium">{{ row.name }}</span>
+        <template #position-data="{ row }">
+          <div class="flex items-center gap-3">
+            <span class="text-gray-900 dark:text-white font-medium">
+              {{ `${row.userTypeDescription}` }}
+            </span>
           </div>
         </template>
 
         <template #status-data="{ row }">
           <UBadge
-            :label="row.status"
-            :color="row.status === 'subscribed' ? 'green' : row.status === 'bounced' ? 'orange' : 'red'"
+            :label="Number(row.status) === 1 ? 'Active' : 'Inactive'"
+            :color="Number(row.status) === 1 ? 'green' : 'red'"
             variant="subtle"
             class="capitalize"
           />
@@ -175,3 +112,74 @@ defineShortcuts({
     </UDashboardPanel>
   </UDashboardPage>
 </template>
+
+<script>
+const api = useApi()
+
+definePageMeta({
+  layout: 'user'
+})
+
+defineShortcuts({
+  '/': () => {
+    input.value?.input?.focus()
+  }
+})
+
+const defaultColumns = [{
+  key: 'id',
+  label: '#'
+}, {
+  key: 'name',
+  label: 'Name',
+  sortable: true
+}, {
+  key: 'username',
+  label: 'Username',
+  sortable: true
+}, {
+  key: 'position',
+  label: 'Position'
+}, {
+  key: 'status',
+  label: 'Status'
+}]
+
+export default {
+  data() {
+    return {
+      q: "",
+      selected: [],
+      selectedColumns: defaultColumns,
+      selectedStatuses: [],
+      selectedLocations: [],
+      sort: { column: 'id', direction: 'asc'},
+      input: "",
+      isNewUserModalOpen: false,
+      users: []
+    }
+  },
+  computed: {
+    columns(){
+      return defaultColumns.filter(column => this.selectedColumns.includes(column))
+    }
+  },
+  created(){
+    this.getList();
+  },
+  methods:{
+    async getList(){
+      this.users = []
+      api.get("users/getUsersList").then((res) => {
+        let response = {...res.data}
+        if(!response.error){
+          this.users = response.list
+        } else {
+          // show Error
+          console.log('there is some error')
+        }
+      })
+    }
+  }
+}
+</script>

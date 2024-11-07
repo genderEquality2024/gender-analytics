@@ -3,6 +3,9 @@ import { sub } from 'date-fns'
 import type { Period, Range } from '~/types'
 
 const { isNotificationsSlideoverOpen } = useDashboard()
+definePageMeta({
+  layout: 'user'
+})
 
 const items = [[{
   label: 'New mail',

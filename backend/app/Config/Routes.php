@@ -46,13 +46,29 @@ $routes->group('gender_analytics/api/v1', function($routes){
 		$routes->post('getUserById', 'Users::getUserDetails');
 	});
 
+	$routes->group('analytics', function($routes){
+		$routes->post('add/new', 'Analytics::addAnalyticsData');
+		$routes->get('get/list', 'Analytics::getAllAnalyticsData');
+		$routes->post('get/graph', 'Analytics::getGraphAnalytics');
+		$routes->post('get/dashboard', 'Analytics::getDashboard');
+	});
+
+	$routes->group('document', function($routes){
+		$routes->post('create/content', 'DocumentGFPS::addDocumentContent');
+	});
+
+	$routes->group('events', function($routes){
+		$routes->post('add', 'Events::addEventCalendar');
+	});
+
+	$routes->group('evaluation', function($routes){
+		$routes->post('create/content', 'Evaluation::addDocumentContent');
+	});
+
 	$routes->group('misc', function($routes){
 		$routes->get('getUserTypes', 'Misc::getUserTypes');
 		$routes->get('getBranches', 'Misc::getBranches');
 		$routes->get('getAddress/(:any)', 'Misc::getAddress/$1');
-
-		$routes->post('dashboard', 'Dashboard::getDashboard');
-		$routes->post('monthly/result', 'Dashboard::getMonthlyResult');
 	});
 
 	

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { jwtDecode } from 'jwt-decode';
 import nuxtStorage from 'nuxt-storage';
 const router = useRouter()
 const { isHelpSlideoverOpen } = useDashboard()
@@ -21,6 +22,11 @@ const items = computed(() => [
   }]
 ])
 
+const user = computed(() => {
+  let profile = localStorage.getItem('userToken');
+  return jwtDecode(profile);
+})
+
 function signOutUser(){
   nuxtStorage.localStorage.clear()
   router.push('/')
@@ -40,7 +46,7 @@ function signOutUser(){
         color="gray"
         variant="ghost"
         class="w-full"
-        label="My Fullname"
+        :label="user.fullName"
         :class="[open && 'bg-gray-50 dark:bg-gray-800']"
       >
         <template #leading>

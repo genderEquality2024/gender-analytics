@@ -18,7 +18,7 @@ const links = [{
   id: 'home',
   label: 'Home',
   icon: 'i-heroicons-home',
-  to: '/',
+  to: '/home',
   tooltip: {
     text: 'Home',
     shortcuts: ['G', 'H']
@@ -34,34 +34,63 @@ const links = [{
   }
 }, {
   id: 'users',
-  label: 'Reports',
-  icon: 'i-heroicons-chart-pie',
+  label: 'User Management',
+  icon: 'i-heroicons-user-group',
   to: '/users',
   tooltip: {
     text: 'Users',
     shortcuts: ['G', 'U']
   }
 }, {
-  id: 'settings',
-  label: 'Resources',
-  to: '/settings',
-  icon: 'i-heroicons-document-text',
-  children: [{
-    label: 'General',
-    to: '/settings',
-    exact: true
-  }, {
-    label: 'Members',
-    to: '/settings/members'
-  }, {
-    label: 'Notifications',
-    to: '/settings/notifications'
-  }],
+  id: 'events',
+  label: 'Data Management',
+  icon: 'i-heroicons-chart-bar',
+  to: '/data/management',
   tooltip: {
-    text: 'Settings',
-    shortcuts: ['G', 'S']
+    text: 'Users',
+    shortcuts: ['G', 'U']
   }
-}]
+}, {
+  id: 'events',
+  label: 'Resources',
+  icon: 'i-heroicons-chart-pie',
+  to: '/events',
+  tooltip: {
+    text: 'Users',
+    shortcuts: ['G', 'U']
+  }
+}, {
+  id: 'events',
+  label: 'Events and Evaluation',
+  icon: 'i-heroicons-calendar-days',
+  to: '/events',
+  tooltip: {
+    text: 'Users',
+    shortcuts: ['G', 'U']
+  }
+},
+// {
+//   id: 'settings',
+//   label: 'Resources',
+//   to: '/settings',
+//   icon: 'i-heroicons-document-text',
+//   children: [{
+//     label: 'General',
+//     to: '/settings',
+//     exact: true
+//   }, {
+//     label: 'Members',
+//     to: '/settings/members'
+//   }, {
+//     label: 'Notifications',
+//     to: '/settings/notifications'
+//   }],
+//   tooltip: {
+//     text: 'Settings',
+//     shortcuts: ['G', 'S']
+//   }
+// }
+]
 
 const footerLinks = [{
   label: 'Help & Support',

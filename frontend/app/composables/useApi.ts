@@ -10,7 +10,7 @@ export const useApi = () => {
             let appData = getData('userToken');
             const token = appData;
             if (token) {
-            config.headers['Authorization'] = 'Bearer ' + token;
+                config.headers['Authorization'] = 'Bearer ' + token;
             }
             return config;
         },

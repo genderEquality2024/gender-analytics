@@ -1,4 +1,8 @@
 <script setup lang="ts">
+definePageMeta({
+  layout: 'user'
+})
+
 const links = [[{
   label: 'General',
   icon: 'i-heroicons-user-circle',
