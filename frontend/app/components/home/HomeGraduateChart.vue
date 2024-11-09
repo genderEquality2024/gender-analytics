@@ -4,8 +4,21 @@
     description="ASCOT graduating student for the year"
     icon="i-heroicons-academic-cap"
 >
+    <USelect 
+        v-model="selectedValue" 
+        :options="coursesOpt" 
+        option-attribute="name"
+        @change="emitValue"
+    />
     <div id="chart">
-        <apexchart type="bar" height="380"  :options="chartOptions" :series="series"></apexchart>
+        <apexchart
+            ref="realtimeChart"
+            type="bar" 
+            height="380"  
+            :options.sync="chartOptions" 
+            :series.sync="series"
+        >
+        </apexchart>
     </div>
 </UDashboardCard>
 </template>
@@ -19,6 +32,10 @@ export default {
         type: Array,
         default: []
       },
+      coursesOpt: {
+        type: Array,
+        default: []
+      },
 
     },
     components: {
@@ -26,23 +43,10 @@ export default {
     },
     data(){
         return {
+            selectedValue: null,
             series: [{
-                name: "sales",
-                data: [
-                    {
-                        x: 'Male',
-                        y: 2
-                    }, {
-                        x: 'Female',
-                        y: 1
-                    }, {
-                        x: 'Male',
-                        y: 41
-                    }, {
-                        x: 'Female',
-                        y: 115
-                    }
-                ]
+                name: "graduates",
+                data: []
             }],
             chartOptions: {
                 chart: {
@@ -61,13 +65,52 @@ export default {
                             fontSize: '10px',
                             fontWeight: 700
                         },
-                        groups: [
-                            { title: 'First - 2022 - 2023', cols: 2 },
-                            { title: 'Second - 2022 - 2023', cols: 2 }
-                        ]
+                        groups: []
                     }
                 },
             },
+        }
+    },
+    methods:{
+        emitValue(){
+            let selected = [];
+            let filterData = this.coursesOpt.filter(el => {
+                return el.name === this.selectedValue
+            })
+            
+            let series = []
+            let groups = []
+
+            if(typeof filterData[0].data === "object"){
+                for (const el in filterData[0].data) {
+                    selected.push(filterData[0].data[el])
+                }
+            } else {
+                selected = filterData[0].data
+            }
+
+            selected.forEach(el => {
+                groups.push(el.group)
+                series.push(...el.series)
+            });
+
+            // this.series.data = series
+            // this.chartOptions.xaxis.group.groups = groups
+            
+            this.$refs.realtimeChart.updateSeries([{
+                data: series,
+            }], false, true);
+            this.$refs.realtimeChart.updateOptions({
+                xaxis: {
+                    group: {
+                        style: {
+                            fontSize: '10px',
+                            fontWeight: 700
+                        },
+                        groups: groups
+                    }
+                },
+            });
         }
     }
 }

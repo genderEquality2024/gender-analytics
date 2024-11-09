@@ -96,6 +96,7 @@ class Analytics extends BaseController
         $employement = 0;
         $vacant = 0;
         $chart = [];
+        $enChart = [];
 
         $query = $this->analyticsModel->getDashboardAnalytics([
             "yearFrom" => $data->yearFrom,
@@ -110,11 +111,6 @@ class Analytics extends BaseController
                 $undergraduates += (int)$value->undergrad;
 
                 // Series generate
-
-                // groups: [
-                //     { title: 'First - 2022 - 2023', cols: 2 },
-                //     { title: 'Second - 2022 - 2023', cols: 2 }
-                // ]
                 $chart[$value->course][$key] = (object)[
                     "group" => (object)[
                         "title"=> $value->term ." - ". $value->yearFrom ."-". $value->yearTo,
@@ -123,10 +119,12 @@ class Analytics extends BaseController
                     "series" => [
                         (object)[
                             "x" =>  "Male",
+                            "fillColor" =>  "#3b82f6",
                             "y" =>  (int)$value->male,
                         ],
                         (object)[
                             "x" =>  "Female",
+                            "fillColor" =>  "#f43f5e",
                             "y" =>  (int)$value->female,
                         ],
                     ]
@@ -134,6 +132,26 @@ class Analytics extends BaseController
             } else if($value->reportType === "enrollment"){
                 $enrollment += (int)$value->male;
                 $enrollment += (int)$value->female;
+
+                // Series generate
+                $enChart[$value->course][$key] = (object)[
+                    "group" => (object)[
+                        "title"=> $value->term ." - ". $value->yearFrom ."-". $value->yearTo,
+                        "cols"=> 2,
+                    ],
+                    "series" => [
+                        (object)[
+                            "x" =>  "Male",
+                            "fillColor" =>  "#3b82f6",
+                            "y" =>  (int)$value->male,
+                        ],
+                        (object)[
+                            "x" =>  "Female",
+                            "fillColor" =>  "#f43f5e",
+                            "y" =>  (int)$value->female,
+                        ],
+                    ]
+                ];
             } else if($value->reportType === "employee"){
                 $employement += (int)$value->male;
                 $employement += (int)$value->female;
@@ -150,7 +168,8 @@ class Analytics extends BaseController
             'enrollment' => $enrollment,
             'employee' => $employement,
             'vacant' => $vacant,
-            'dataAnalytics' => $chart
+            'dataAnalytics' => $chart,
+            'enrollAnalytics' => $enChart,
         ];
 
         if($list){

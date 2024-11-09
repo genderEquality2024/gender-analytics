@@ -34,8 +34,9 @@
         <template #right>
           <CommonDateYearSelection  
             v-model="selectedYears"
+            @updateList="getListSelection"
           />
-          <UButton @click="getList">Get Analytics & Dashboard</UButton>
+          <!-- <UButton @click="getList">Get Analytics & Dashboard</UButton> -->
         </template>
       </UDashboardToolbar>
 
@@ -50,7 +51,9 @@
 
         <div class="grid lg:grid-cols-2 lg:items-start gap-8 mt-8">
           <!-- ~/components/home/HomeChart.vue -->
-          <HomeGraduateChart />
+          <HomeGraduateChart 
+            :coursesOpt="chartOptions"
+          />
           <!-- ~/components/home/HomeCountries.vue -->
           <!-- <HomeCountries /> -->
           
@@ -71,6 +74,7 @@ export default {
         return {
           chartEnrollmentData: [],
           chartGraduateData: [],
+          chartOptions: [],
           selectedYears: {
             from: "2023",
             to: "2024",
@@ -82,7 +86,7 @@ export default {
             color: 'red',
             icon: 'i-heroicons-user-group'
           }, {
-            label: 'Employement',
+            label: 'Employment',
             value: 0,
             caption: 'Total count of the employee',
             color: 'orange',
@@ -114,30 +118,46 @@ export default {
         api.post("analytics/get/dashboard", payload).then((res) => {
           let response = {...res.data}
           if(!response.error){
-            console.log(response)
             this.dashboardCards[0].value = response.enrollment
             this.dashboardCards[1].value = response.employee
             this.dashboardCards[3].value = response.graduates
-
-
-            // series: [{
-            //     name: "sales",
-            //     data: [
-            //         {
-            //             x: 'Male',
-            //             y: 2
-            //         }, {
-            //             x: 'Female',
-            //             y: 1
-            //         }, {
-            //             x: 'Male',
-            //             y: 41
-            //         }, {
-            //             x: 'Female',
-            //             y: 115
-            //         }
-            //     ]
-            // }],
+            console.log(response)
+            let optData = []
+            for (const i in response.enrollAnalytics) {
+              optData.push({
+                name: i,
+                value: i,
+                data: response.enrollAnalytics[i]
+              })
+            }
+            this.chartOptions = optData
+          } else {
+            // show Error
+            console.log('there is some error')
+          }
+        })
+      },
+      async getListSelection(dataYear){
+        let payload = {
+          yearFrom: dataYear.from,
+          yearTo: dataYear.to,
+        }
+        api.post("analytics/get/dashboard", payload).then((res) => {
+          let response = {...res.data}
+          if(!response.error){
+            this.dashboardCards[0].value = response.enrollment
+            this.dashboardCards[1].value = response.employee
+            this.dashboardCards[3].value = response.graduates
+            console.log(response)
+            let optData = []
+            for (const i in response.enrollAnalytics) {
+              optData.push({
+                name: i,
+                value: i,
+                data: response.enrollAnalytics[i]
+              })
+            }
+            this.chartOptions = optData
           } else {
             // show Error
             console.log('there is some error')

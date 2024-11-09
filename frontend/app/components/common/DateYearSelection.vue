@@ -57,6 +57,7 @@ export default {
         moment,
         emitValue(){
             this.$emit('update-modelValue', this.dataValue)
+            this.$emit('updateList', this.dataValue)
         }
     }
 }

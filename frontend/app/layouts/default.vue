@@ -145,7 +145,7 @@ async function onSubmit (data: any) {
           <img src="/imgs/ASCT_logo2.png"  />
         </template>
         <template #title>
-          GENDER EQUALITY ANALYTICS
+          GENDER EQUALITY DASHBOARD
         </template>
 
         <template #password-hint>

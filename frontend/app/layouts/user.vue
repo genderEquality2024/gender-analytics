@@ -54,7 +54,7 @@ const links = [{
   id: 'events',
   label: 'Resources',
   icon: 'i-heroicons-chart-pie',
-  to: '/events',
+  to: '/resource',
   tooltip: {
     text: 'Users',
     shortcuts: ['G', 'U']
