@@ -51,10 +51,14 @@ $routes->group('gender_analytics/api/v1', function($routes){
 		$routes->get('get/list', 'Analytics::getAllAnalyticsData');
 		$routes->post('get/graph', 'Analytics::getGraphAnalytics');
 		$routes->post('get/dashboard', 'Analytics::getDashboard');
+
+		// Analytics page
+		
 	});
 
 	$routes->group('document', function($routes){
 		$routes->post('create/content', 'DocumentGFPS::addDocumentContent');
+		$routes->get('get/list', 'DocumentGFPS::getDocumentList');
 	});
 
 	$routes->group('events', function($routes){

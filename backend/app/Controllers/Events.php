@@ -22,7 +22,7 @@ class Events extends BaseController
 
             $response = [
                 'title' => 'Data Added',
-                'message' => 'Data successfully added to event evaluation questionaire'
+                'message' => 'Event successfully added'
             ];
  
             return $this->response

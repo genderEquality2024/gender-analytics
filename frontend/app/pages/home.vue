@@ -51,11 +51,13 @@
 
         <div class="grid lg:grid-cols-2 lg:items-start gap-8 mt-8">
           <!-- ~/components/home/HomeChart.vue -->
-          <HomeGraduateChart 
+          <HomeEnrollChart 
             :coursesOpt="chartOptions"
           />
           <!-- ~/components/home/HomeCountries.vue -->
-          <!-- <HomeCountries /> -->
+          <HomeGraduateChart 
+            :coursesOpt="chartGradOptions"
+          />
           
         </div>
       </UDashboardPanelContent>
@@ -75,6 +77,7 @@ export default {
           chartEnrollmentData: [],
           chartGraduateData: [],
           chartOptions: [],
+          chartGradOptions: [],
           selectedYears: {
             from: "2023",
             to: "2024",
@@ -94,7 +97,7 @@ export default {
           }, {
             label: 'Resources',
             value: 0,
-            caption: 'Total count of the Events',
+            caption: 'Total count of the document',
             color: 'yellow',
             icon: 'i-heroicons-clipboard-document-list'
           }, {
@@ -107,36 +110,9 @@ export default {
         }
     },
     created(){
-      this.getList()
+      this.getListSelection(this.selectedYears)
     },
     methods:{
-      async getList(){
-        let payload = {
-          yearFrom: this.selectedYears.from,
-          yearTo: this.selectedYears.to,
-        }
-        api.post("analytics/get/dashboard", payload).then((res) => {
-          let response = {...res.data}
-          if(!response.error){
-            this.dashboardCards[0].value = response.enrollment
-            this.dashboardCards[1].value = response.employee
-            this.dashboardCards[3].value = response.graduates
-            console.log(response)
-            let optData = []
-            for (const i in response.enrollAnalytics) {
-              optData.push({
-                name: i,
-                value: i,
-                data: response.enrollAnalytics[i]
-              })
-            }
-            this.chartOptions = optData
-          } else {
-            // show Error
-            console.log('there is some error')
-          }
-        })
-      },
       async getListSelection(dataYear){
         let payload = {
           yearFrom: dataYear.from,
@@ -147,8 +123,10 @@ export default {
           if(!response.error){
             this.dashboardCards[0].value = response.enrollment
             this.dashboardCards[1].value = response.employee
+            this.dashboardCards[2].value = response.resource
             this.dashboardCards[3].value = response.graduates
             console.log(response)
+            
             let optData = []
             for (const i in response.enrollAnalytics) {
               optData.push({
@@ -158,6 +136,37 @@ export default {
               })
             }
             this.chartOptions = optData
+
+            let optDataGrad = []
+            for (const i in response.dataAnalytics) {
+              let maleSeries = []
+              let femaleSeries = []
+              let category = []
+
+              for(const l in response.dataAnalytics[i]){
+                maleSeries.push(response.dataAnalytics[i][l].male)
+                femaleSeries.push(response.dataAnalytics[i][l].female)
+                category.push(response.dataAnalytics[i][l].categories)
+              }
+
+              optDataGrad.push({
+                name: i,
+                value: i,
+                data: [
+                  {
+                    name: "male",
+                    data: maleSeries,
+                  },
+                  {
+                    name: "female",
+                    data: femaleSeries,
+                  }
+                ],
+                categories: category
+              })
+            }
+
+            this.chartGradOptions = optDataGrad
           } else {
             // show Error
             console.log('there is some error')

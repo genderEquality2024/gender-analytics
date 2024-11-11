@@ -144,14 +144,6 @@
             />
           </UFormGroup>
           <UFormGroup
-            label="Undergraduate Count"
-            name="undergrad"
-          >
-            <UInput
-              v-model="form.undergrad"
-            />
-          </UFormGroup>
-          <UFormGroup
             label="Vacant Count"
             name="vacant"
           >
@@ -276,7 +268,6 @@ export default {
         term: "",
         male: 0,
         female: 0,
-        undergrad: 0,
         vacant: 0,
         createdBy: 0,
       },

@@ -42,9 +42,38 @@ class DocumentGFPS extends BaseController
                     ->setContentType('application/json')
                     ->setBody(json_encode($response));
         }
-        // print_r($data);
-        // exit();
+    }
+
+    public function getDocumentList(){
+        //Get API Request Data from NuxtJs
         
+        $docs = [];
+        $docs['list'] = $this->documentModel->get()->getResult();
+
+        if($docs){
+
+            $response = [
+                'title' => 'Data Added',
+                'message' => 'Data successfully added to analytics data'
+            ];
+ 
+            return $this->response
+                    ->setStatusCode(200)
+                    ->setContentType('application/json')
+                    ->setBody(json_encode($docs));
+            
+        } else {
+            $response = [
+                'error' => 400,
+                'title' => 'Registration Failed!',
+                'message' => 'Please check your data.'
+            ];
+ 
+            return $this->response
+                    ->setStatusCode(200)
+                    ->setContentType('application/json')
+                    ->setBody(json_encode($response));
+        }
     }
 
 }

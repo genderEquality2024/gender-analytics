@@ -2,6 +2,7 @@
 
 use CodeIgniter\HTTP\IncomingRequest;
 use App\Models\AnalyticsModel;
+use App\Models\DocumentModel;
 use \Firebase\JWT\JWT;
 
 class Analytics extends BaseController
@@ -9,6 +10,7 @@ class Analytics extends BaseController
     public function __construct(){
         //Models
         $this->analyticsModel = new AnalyticsModel();
+        $this->documentModel = new DocumentModel();
     }
 
     public function addAnalyticsData(){
@@ -102,6 +104,8 @@ class Analytics extends BaseController
             "yearFrom" => $data->yearFrom,
             "yearTo" => $data->yearTo
         ]);
+        $resources = $this->documentModel->get()->getResult();
+
 
         
         foreach ($query as $key => $value){
@@ -111,24 +115,11 @@ class Analytics extends BaseController
                 $undergraduates += (int)$value->undergrad;
 
                 // Series generate
-                $chart[$value->course][$key] = (object)[
-                    "group" => (object)[
-                        "title"=> $value->term ." - ". $value->yearFrom ."-". $value->yearTo,
-                        "cols"=> 2,
-                    ],
-                    "series" => [
-                        (object)[
-                            "x" =>  "Male",
-                            "fillColor" =>  "#3b82f6",
-                            "y" =>  (int)$value->male,
-                        ],
-                        (object)[
-                            "x" =>  "Female",
-                            "fillColor" =>  "#f43f5e",
-                            "y" =>  (int)$value->female,
-                        ],
-                    ]
-                ];
+                // $chart[$value->course][$key]
+                $chart[$value->course][$key]["male"] = (int)$value->male;
+                $chart[$value->course][$key]["female"] = (int)$value->female;
+                $chart[$value->course][$key]["categories"] = $value->term ." - ". $value->yearFrom ."-". $value->yearTo;
+
             } else if($value->reportType === "enrollment"){
                 $enrollment += (int)$value->male;
                 $enrollment += (int)$value->female;
@@ -168,6 +159,7 @@ class Analytics extends BaseController
             'enrollment' => $enrollment,
             'employee' => $employement,
             'vacant' => $vacant,
+            'resource' => sizeof($resources),
             'dataAnalytics' => $chart,
             'enrollAnalytics' => $enChart,
         ];
