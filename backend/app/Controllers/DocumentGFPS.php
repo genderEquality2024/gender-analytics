@@ -44,6 +44,38 @@ class DocumentGFPS extends BaseController
         }
     }
 
+    public function deleteDocumentContent(){
+        //Get API Request Data from NuxtJs
+        $data = $this->request->getJSON();
+        
+        $query = $this->documentModel->where('id', $data->cId)->delete();
+
+        if($query){
+
+            $response = [
+                'title' => 'Content Deleted',
+                'message' => 'Data successfully deleted'
+            ];
+ 
+            return $this->response
+                    ->setStatusCode(200)
+                    ->setContentType('application/json')
+                    ->setBody(json_encode($response));
+            
+        } else {
+            $response = [
+                'error' => 400,
+                'title' => 'Registration Failed!',
+                'message' => 'Please check your data.'
+            ];
+ 
+            return $this->response
+                    ->setStatusCode(200)
+                    ->setContentType('application/json')
+                    ->setBody(json_encode($response));
+        }
+    }
+
     public function getDocumentList(){
         //Get API Request Data from NuxtJs
         

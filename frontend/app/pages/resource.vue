@@ -22,6 +22,13 @@
             :options="docsOpt" 
             option-attribute="name"
           />
+          <UButton
+            label="Remove Resource"
+            trailing-icon="i-heroicons-trash"
+            color="red"
+            :disabled="docsOpt.length === 1"
+            @click="removeResource"
+          />
         </template>
       </UDashboardToolbar>
 
@@ -95,6 +102,7 @@ export default {
         return {
           isNewUserModalOpen: false,
           resourceUrl: 'docs/resources.pdf',
+          docList: [],
           docsOpt: [],
           form: {
             title: '',
@@ -140,6 +148,40 @@ export default {
         document.getElementById('pdf').src = pdfDataUri;
 
       },
+      async removeResource(){
+        let filterDoc = this.docList.filter((el) => { return el.content === this.resourceUrl })
+        
+        let payload = {
+          cId: filterDoc[0].id
+        }
+
+        api.post("document/delete/content", payload).then((res) => {
+          let response = {...res.data}
+          if(!response.error){
+            this.clearForm();
+            this.getList();
+            toast.add({
+              id: 'success_submit',
+              title: 'Delete Success',
+              description: 'Please check',
+              icon: 'i-octicon-check-circle-fill-24',
+              color: "green",
+              timeout: 1000,
+            })
+          } else {
+            toast.add({
+              id: 'error_submit',
+              title: 'Delete Failed.',
+              description: 'Please contact your administrator.',
+              icon: 'i-octicon-alert-24',
+              color: "red",
+              timeout: 1000,
+            })
+            // show Error
+            console.log('there is some error')
+          }
+        })
+      },
       async onSubmit(){
         if(this.form.content !== '' && this.form.title !== ""){
           let payload = {
@@ -165,7 +207,7 @@ export default {
             description: 'Please fill the required fields.',
             icon: 'i-octicon-alert-24',
             color: "red",
-            timeout: 0,
+            timeout: 1000,
           })
         }
       },
@@ -174,6 +216,7 @@ export default {
         api.get("document/get/list").then((res) => {
           let response = {...res.data}
           if(!response.error){
+            this.docList = response.list
             this.docsOpt = response.list.map(el => {
               return {
                 name: el.title,

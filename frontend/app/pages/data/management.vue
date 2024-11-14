@@ -6,20 +6,6 @@
         :badge="users.length"
       >
         <template #right>
-          <UInput
-            ref="input"
-            v-model="q"
-            icon="i-heroicons-funnel"
-            autocomplete="off"
-            placeholder="Filter users..."
-            class="hidden lg:block"
-            @keydown.esc="$event.target.blur()"
-          >
-            <template #trailing>
-              <UKbd value="/" />
-            </template>
-          </UInput>
-
           <UButton
             label="New Data Report"
             trailing-icon="i-heroicons-plus"
@@ -103,11 +89,11 @@
             />
           </UFormGroup>
           <UFormGroup
-            label="School Year"
             name="schoolYEar"
           >
-            <CommonDateYearSelection  
-              v-model="form.years"
+            <CommonDateYearSelection
+              label="School Year"
+              v-model="form.schoolYear"
             />
           </UFormGroup>
           <UFormGroup
@@ -176,7 +162,7 @@
         <template #years-data="{ row }">
           <div class="flex items-center gap-3">
             <span class="text-gray-900 dark:text-white font-medium">
-              {{ `${row.yearFrom} - ${row.yearTo}` }}
+              {{ `${row.schoolYear}` }}
             </span>
           </div>
         </template>
@@ -260,10 +246,7 @@ export default {
       users: [],
       form:{
         course: "",
-        years: {
-          from: "2024",
-          to: "2025",
-        },
+        schoolYear: "2024 - 2025",
         reportType: "",
         term: "",
         male: 0,

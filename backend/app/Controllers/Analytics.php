@@ -49,17 +49,40 @@ class Analytics extends BaseController
         
     }
 
-    public function getGraphAnalytics(){
+    public function getGraphAnalyticOptions(){
         //Get API Request Data from NuxtJs
         $data = $this->request->getJSON();
         
-        $query = $this->analyticsModel->getAllYearRangeData([
-            "yearFrom" => $data->yearFrom,
-            "yearTo" => $data->yearTo,
-            "term" => $data->term,
+        $query = $this->analyticsModel->getOptionsGraph([
+            "schoolYear" => $data->schoolYear,
+            "reportType" => $data->reportType,
         ]);
-        // print_r($data);
-        // exit();
+
+        $list = [];
+
+        foreach ($query as $key => $value){
+            $list[$key] = [
+                "name" => $value->course,
+                "value" => $value->course
+            ];
+        }
+
+        if($list){
+            return $this->response
+                    ->setStatusCode(200)
+                    ->setContentType('application/json')
+                    ->setBody(json_encode($list));
+        } else {
+            $response = [
+                'title' => 'Error',
+                'message' => 'No Data Found'
+            ];
+
+            return $this->response
+                    ->setStatusCode(400)
+                    ->setContentType('application/json')
+                    ->setBody(json_encode($response));
+        }
         
     }
 
@@ -101,8 +124,7 @@ class Analytics extends BaseController
         $enChart = [];
 
         $query = $this->analyticsModel->getDashboardAnalytics([
-            "yearFrom" => $data->yearFrom,
-            "yearTo" => $data->yearTo
+            "schoolYear" => $data->schoolYear
         ]);
         $resources = $this->documentModel->get()->getResult();
 
@@ -112,13 +134,12 @@ class Analytics extends BaseController
             if($value->reportType === "graduate"){
                 $graduates += (int)$value->male;
                 $graduates += (int)$value->female;
-                $undergraduates += (int)$value->undergrad;
 
                 // Series generate
                 // $chart[$value->course][$key]
                 $chart[$value->course][$key]["male"] = (int)$value->male;
                 $chart[$value->course][$key]["female"] = (int)$value->female;
-                $chart[$value->course][$key]["categories"] = $value->term ." - ". $value->yearFrom ."-". $value->yearTo;
+                $chart[$value->course][$key]["categories"] = $value->term ." - ".  $value->schoolYear;
 
             } else if($value->reportType === "enrollment"){
                 $enrollment += (int)$value->male;
@@ -127,7 +148,7 @@ class Analytics extends BaseController
                 // Series generate
                 $enChart[$value->course][$key] = (object)[
                     "group" => (object)[
-                        "title"=> $value->term ." - ". $value->yearFrom ."-". $value->yearTo,
+                        "title"=> $value->term ." - ".  $value->schoolYear,
                         "cols"=> 2,
                     ],
                     "series" => [
@@ -163,6 +184,87 @@ class Analytics extends BaseController
             'dataAnalytics' => $chart,
             'enrollAnalytics' => $enChart,
         ];
+
+        if($list){
+            return $this->response
+                    ->setStatusCode(200)
+                    ->setContentType('application/json')
+                    ->setBody(json_encode($list));
+        } else {
+            $response = [
+                'title' => 'Error',
+                'message' => 'No Data Found'
+            ];
+
+            return $this->response
+                    ->setStatusCode(400)
+                    ->setContentType('application/json')
+                    ->setBody(json_encode($response));
+        }
+        
+    }
+
+    public function getGraphAnalytics(){
+        //Get API Request Data from NuxtJs
+        $data = $this->request->getJSON();
+        $query = $this->analyticsModel->getAllYearRangeData([
+            "schoolYear" => $data->schoolYear,
+            "reportType" => $data->reportType,
+            "course" => $data->course,
+        ]);
+        $list = [];
+
+        foreach ($query as $key => $value){
+            if($data->reportType === 'enrollment'){
+                $list[$key] = (object)[
+                    "group" => (object)[
+                        "title"=> $value->term ." - ". $value->schoolYear,
+                        "cols"=> 2,
+                    ],
+                    "series" => [
+                        (object)[
+                            "x" =>  "Male",
+                            "fillColor" =>  "#3b82f6",
+                            "y" =>  (int)$value->male,
+                        ],
+                        (object)[
+                            "x" =>  "Female",
+                            "fillColor" =>  "#f43f5e",
+                            "y" =>  (int)$value->female,
+                        ],
+                    ]
+                ];
+            } else if($data->reportType === 'employee'){
+                // $list[$value->term] = 
+                $list[$key] = (object)[
+                    "group" => (object)[
+                        "title"=> $value->course,
+                        "cols"=> 2,
+                    ],
+                    "series" => [
+                        (object)[
+                            "x" =>  $value->term,
+                            "fillColor" =>  "#3b82f6",
+                            "y" =>  (int)$value->male,
+                        ],
+                        (object)[
+                            "x" =>  $value->term,
+                            "fillColor" =>  "#f43f5e",
+                            "y" =>  (int)$value->female,
+                        ],
+                        (object)[
+                            "x" =>  $value->term,
+                            "fillColor" =>  "#f43f5e",
+                            "y" =>  (int)$value->vacant,
+                        ],
+                    ]
+                ];
+            } else if($data->reportType === 'graduate'){
+                $list[$key]["male"] = (int)$value->male;
+                $list[$key]["female"] = (int)$value->female;
+                $list[$key]["categories"] = $value->term ." - ". $value->schoolYear;
+            }
+        }
 
         if($list){
             return $this->response

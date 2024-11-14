@@ -1,32 +1,7 @@
 <template>
 <UDashboardPage>
   <UDashboardPanel grow>
-    <UDashboardNavbar title="GENDER EQUALITY DASHBOARD">
-        <template #right>
-          <UTooltip
-            text="Notifications"
-            :shortcuts="['N']"
-          >
-            <UButton
-              color="gray"
-              variant="ghost"
-              square
-              @click="isNotificationsSlideoverOpen = true"
-            >
-              <UChip
-                color="red"
-                inset
-              >
-                <UIcon
-                  name="i-heroicons-bell"
-                  class="w-5 h-5"
-                />
-              </UChip>
-            </UButton>
-          </UTooltip>
-        </template>
-      </UDashboardNavbar>
-
+    <UDashboardNavbar title="GENDER EQUALITY DASHBOARD"></UDashboardNavbar>
       <UDashboardToolbar>
         <template #left>
           Tracking and Promoting Gender Equality at ASCOT
@@ -34,9 +9,9 @@
         <template #right>
           <CommonDateYearSelection  
             v-model="selectedYears"
+            label="School Year"
             @updateList="getListSelection"
           />
-          <!-- <UButton @click="getList">Get Analytics & Dashboard</UButton> -->
         </template>
       </UDashboardToolbar>
 
@@ -47,18 +22,6 @@
           <HomeCardItems 
             :cardItems="dashboardCards"
           />
-        </div>
-
-        <div class="grid lg:grid-cols-2 lg:items-start gap-8 mt-8">
-          <!-- ~/components/home/HomeChart.vue -->
-          <HomeEnrollChart 
-            :coursesOpt="chartOptions"
-          />
-          <!-- ~/components/home/HomeCountries.vue -->
-          <HomeGraduateChart 
-            :coursesOpt="chartGradOptions"
-          />
-          
         </div>
       </UDashboardPanelContent>
   </UDashboardPanel>
@@ -78,18 +41,15 @@ export default {
           chartGraduateData: [],
           chartOptions: [],
           chartGradOptions: [],
-          selectedYears: {
-            from: "2023",
-            to: "2024",
-          },
+          selectedYears: "2024 - 2025",
           dashboardCards: [{
-            label: 'Total Enrollment',
+            label: 'Students',
             value: 0,
             caption: 'Total count of the enrolled students',
             color: 'red',
             icon: 'i-heroicons-user-group'
           }, {
-            label: 'Employment',
+            label: 'Faculty & Staff',
             value: 0,
             caption: 'Total count of the employee',
             color: 'orange',
@@ -115,8 +75,7 @@ export default {
     methods:{
       async getListSelection(dataYear){
         let payload = {
-          yearFrom: dataYear.from,
-          yearTo: dataYear.to,
+          schoolYear: dataYear,
         }
         api.post("analytics/get/dashboard", payload).then((res) => {
           let response = {...res.data}
@@ -165,7 +124,7 @@ export default {
                 categories: category
               })
             }
-
+            console.log(optDataGrad)
             this.chartGradOptions = optDataGrad
           } else {
             // show Error

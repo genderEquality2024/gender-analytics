@@ -50,14 +50,13 @@ $routes->group('gender_analytics/api/v1', function($routes){
 		$routes->post('add/new', 'Analytics::addAnalyticsData');
 		$routes->get('get/list', 'Analytics::getAllAnalyticsData');
 		$routes->post('get/graph', 'Analytics::getGraphAnalytics');
+		$routes->post('get/graph/options', 'Analytics::getGraphAnalyticOptions');
 		$routes->post('get/dashboard', 'Analytics::getDashboard');
-
-		// Analytics page
-		
 	});
 
 	$routes->group('document', function($routes){
 		$routes->post('create/content', 'DocumentGFPS::addDocumentContent');
+		$routes->post('delete/content', 'DocumentGFPS::deleteDocumentContent');
 		$routes->get('get/list', 'DocumentGFPS::getDocumentList');
 	});
 

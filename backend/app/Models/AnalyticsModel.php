@@ -16,13 +16,13 @@ class AnalyticsModel extends Model
 
     protected $allowedFields = [
         'course', 
+        'schoolYear', 
         'yearFrom', 
         'yearTo', 
         'reportType', 
         'term', 
         'male',
         'female',
-        'undergrad',
         'vacant',
         'createdBy'
     ];
@@ -43,4 +43,22 @@ class AnalyticsModel extends Model
 
         return $results;
     }
+    public function getAllYearRangeData($where){
+
+        $query = $this->db->table($this->table)->where($where)->get();
+        $results = $query->getResult();
+
+        return $results;
+    }
+
+    public function getOptionsGraph($where){
+
+        $sql = "SELECT course FROM ".$this->table." WHERE schoolYear = :schoolYear: AND reportType = :reportType: GROUP BY course";
+       
+        $query = $this->db->query($sql, $where);
+        $results = $query->getResult();
+
+        return $results;
+    }
+
 }
