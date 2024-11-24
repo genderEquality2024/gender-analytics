@@ -79,7 +79,7 @@
 </template>
     
 <script>
-import { group } from 'd3';
+import { group, select } from 'd3';
 
     const api = useApi()
     definePageMeta({
@@ -150,6 +150,7 @@ import { group } from 'd3';
             api.post("analytics/get/graph", payload).then((res) => {
               let response = {...res.data}
               if(!response.error){
+                
                 let selected = [];
                 let series = []
                 let groups = []
@@ -161,6 +162,9 @@ import { group } from 'd3';
                 } else {
                     selected = res.data
                 }
+
+                selected.sort((a, b) => +(a.group.title > b.group.title) || -(a.group.title < b.group.title))
+                console.log(selected)
 
                 if(this.filters.reportType === 'enrollment'){
                     selected.forEach(el => {

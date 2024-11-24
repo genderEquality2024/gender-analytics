@@ -139,7 +139,7 @@ class Analytics extends BaseController
                 // $chart[$value->course][$key]
                 $chart[$value->course][$key]["male"] = (int)$value->male;
                 $chart[$value->course][$key]["female"] = (int)$value->female;
-                $chart[$value->course][$key]["categories"] = $value->term ." - ".  $value->schoolYear;
+                $chart[$value->course][$key]["categories"] = $value->term;
 
             } else if($value->reportType === "enrollment"){
                 $enrollment += (int)$value->male;
@@ -148,7 +148,7 @@ class Analytics extends BaseController
                 // Series generate
                 $enChart[$value->course][$key] = (object)[
                     "group" => (object)[
-                        "title"=> $value->term ." - ".  $value->schoolYear,
+                        "title"=> $value->term,
                         "cols"=> 2,
                     ],
                     "series" => [
@@ -218,7 +218,7 @@ class Analytics extends BaseController
             if($data->reportType === 'enrollment'){
                 $list[$key] = (object)[
                     "group" => (object)[
-                        "title"=> $value->term ." - ". $value->schoolYear,
+                        "title"=> $value->classYear ." - ". $value->term,
                         "cols"=> 2,
                     ],
                     "series" => [
@@ -262,7 +262,7 @@ class Analytics extends BaseController
             } else if($data->reportType === 'graduate'){
                 $list[$key]["male"] = (int)$value->male;
                 $list[$key]["female"] = (int)$value->female;
-                $list[$key]["categories"] = $value->term ." - ". $value->schoolYear;
+                $list[$key]["categories"] = $value->term;
             }
         }
 

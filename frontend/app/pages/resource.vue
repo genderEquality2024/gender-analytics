@@ -50,17 +50,6 @@
           class="space-y-4"
           @submit="onSubmit"
         >
-          
-          
-          <UFormGroup
-            label="File Title"
-            name="fileTitle"
-          >
-            <UInput
-              v-model="form.title"
-              autofocus
-            />
-          </UFormGroup>
           <UFormGroup
             label="Import File"
             name="import"
@@ -128,8 +117,10 @@ export default {
     },
     methods:{
       async getFile(file){
+        
         let filePath = file.target.files[0]
         let fileBase = await this.getBase64(filePath)
+        this.form.title = filePath.name.replace('.pdf', '')
         this.form.content = fileBase
       },
       async getBase64(file) {

@@ -21,6 +21,7 @@ class AnalyticsModel extends Model
         'yearTo', 
         'reportType', 
         'term', 
+        'classYear', 
         'male',
         'female',
         'vacant',

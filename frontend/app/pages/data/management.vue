@@ -18,34 +18,36 @@
       <UDashboardToolbar>
         <template #left>
           <USelectMenu
-            v-model="selectedStatuses"
+            v-model="selectedCourseFilter"
             icon="i-heroicons-check-circle"
-            placeholder="Status"
+            placeholder="Course"
             multiple
-            :options="defaultStatuses"
+            :options="courseFilter"
             :ui-menu="{ option: { base: 'capitalize' } }"
+            class="w-96"
           />
           <USelectMenu
-            v-model="selectedLocations"
+            v-model="selectedSchoolYearFilter"
             icon="i-heroicons-map-pin"
-            placeholder="Location"
-            :options="defaultLocations"
+            placeholder="School Year"
+            :options="schoolYearFilter"
             multiple
           />
         </template>
 
         <template #right>
-          <USelectMenu
-            v-model="selectedColumns"
-            icon="i-heroicons-adjustments-horizontal-solid"
-            :options="defaultColumns"
-            multiple
-            class="hidden lg:block"
-          >
-            <template #label>
-              Display
-            </template>
-          </USelectMenu>
+          <UButton
+            label="Filter Data"
+            trailing-icon="i-heroicons-adjustments-vertical"
+            color="blue"
+            @click="filterDataList"
+          />
+          <UButton
+            label="Print Data Report"
+            trailing-icon="i-heroicons-printer"
+            color="blue"
+            @click="filterDataList"
+          />
         </template>
       </UDashboardToolbar>
 
@@ -222,6 +224,9 @@ const defaultColumns = [{
   label: 'Type of Report',
   sortable: true
 }, {
+  key: 'classYear',
+  label: 'Year'
+}, {
   key: 'term',
   label: 'School Term'
 }, {
@@ -244,6 +249,7 @@ export default {
       input: "",
       isNewUserModalOpen: false,
       users: [],
+      usersOrig: [],
       form:{
         course: "",
         schoolYear: "2024 - 2025",
@@ -255,6 +261,26 @@ export default {
         createdBy: 0,
       },
       csvData: [],
+
+
+      courseFilter: [],
+      selectedCourseFilter: [],
+      schoolYearFilter: [],
+      selectedSchoolYearFilter: [],
+      reportTypeFilter: [
+        {
+          name: "Enrollment",
+          value: "enrollment",
+        },
+        {
+          name: "Graduates",
+          value: "graduate",
+        },
+        {
+          name: "Employment",
+          value: "employee",
+        },
+      ],
     }
   },
   computed: {
@@ -337,12 +363,37 @@ export default {
       this.isNewUserModalOpen = false
       
     },
+    filterDataList(){
+      console.log(this.selectedCourseFilter, this.selectedSchoolYearFilter)
+      // this.users.filter(el => {
+      //   if(
+      //     this.selectedCourseFilter.includes(el.course) || 
+      //     this.selectedSchoolYearFilter.includes(el.schoolYear)
+      //   ){
+      //     return el
+      //   } 
+      // })
+
+
+      // console.log(this.users)
+    },
     async getList(){
       this.users = []
+      this.usersOrig = []
       api.get("analytics/get/list").then((res) => {
         let response = {...res.data}
         if(!response.error){
           this.users = response.list
+          this.usersOrig = response.list
+
+          let courses = []
+          let sy = []
+          response.list.forEach(element => {
+            courses.push(element.course)
+            sy.push(element.schoolYear)
+          });
+          this.courseFilter = courses.filter((e, i, self) => i === self.indexOf(e));
+          this.schoolYearFilter = sy.filter((e, i, self) => i === self.indexOf(e));
         } else {
           // show Error
           console.log('there is some error')
