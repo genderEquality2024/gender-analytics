@@ -64,6 +64,22 @@
             />
           </UFormGroup>
 
+          <!-- <UFormGroup
+            label="Import Resource Evaluation"
+            name="import"
+            help="This will automatically insert the data and close the form once the upload of data is complete"
+          >
+            <UInput
+              @input="(evt) => {return readCSVFile(evt)}"
+              type="file" 
+              size="sm" 
+              icon="i-heroicons-folder" 
+            />
+          </UFormGroup>
+          <div class="text-right text-sky-500">
+            <a href="/docs/analytics_data-format.csv" download="analytics_data-format.csv" target="_blank">Click Here to Download Template</a>
+          </div> -->
+
           <div class="mt-1 flex justify-end gap-3">
             <UButton
               type="submit"
@@ -80,6 +96,7 @@
 <script>
 import { jwtDecode } from 'jwt-decode';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib'
+import * as d3 from "d3"
 const api = useApi()
 const toast = useToast()
 definePageMeta({
@@ -93,6 +110,7 @@ export default {
           resourceUrl: 'docs/resources.pdf',
           docList: [],
           docsOpt: [],
+          evaluationList:[],
           form: {
             title: '',
             content: ''
@@ -130,6 +148,30 @@ export default {
             reader.onload = () => resolve(reader.result);
             reader.onerror = error => reject(error);
         });
+      },
+      async readCSVFile(file){
+        var reader = new FileReader();
+        let filePath = file.target.files[0]
+        reader.readAsText(new Blob(
+          [filePath],
+          {"type": file.type}
+        ))
+        const fileContent = await new Promise(resolve => {
+          reader.onloadend = (event) => {
+            resolve(event.target.result)
+          }
+        })
+        let csvData = d3.csvParse(fileContent)
+        
+
+        csvData = csvData.map((el) => {
+          return {
+            ...el,
+            createdBy: Number(this.user.userId)
+          }
+        })
+
+        this.evaluationList = csvData
       },
       async previewPDF(){
         const existingPdfBytes = await fetch(this.resourceUrl).then(res => res.arrayBuffer())
