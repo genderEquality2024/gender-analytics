@@ -27,6 +27,13 @@
             class="w-96"
           />
           <USelectMenu
+            v-model="selectedReportTypeFilter"
+            icon="i-heroicons-map-pin"
+            placeholder="Type of Report"
+            :options="reportTypeFilter"
+            multiple
+          />
+          <USelectMenu
             v-model="selectedSchoolYearFilter"
             icon="i-heroicons-map-pin"
             placeholder="School Year"
@@ -37,16 +44,16 @@
 
         <template #right>
           <UButton
-            label="Filter Data"
-            trailing-icon="i-heroicons-adjustments-vertical"
-            color="blue"
-            @click="filterDataList"
-          />
-          <UButton
             label="Print Data Report"
             trailing-icon="i-heroicons-printer"
             color="blue"
-            @click="filterDataList"
+            @click="generatePrint"
+          />
+          <UButton
+            label="Export CSV"
+            trailing-icon="i-heroicons-printer"
+            color="blue"
+            @click="exportCSV"
           />
         </template>
       </UDashboardToolbar>
@@ -153,7 +160,7 @@
       <UTable
         v-model="selected"
         v-model:sort="sort"
-        :rows="users"
+        :rows="filteredUser"
         :columns="columns"
         :loading="pending"
         sort-mode="manual"
@@ -187,13 +194,18 @@
         </template>
       </UTable>
     </UDashboardPanel>
+
+    <CommonPrintReport 
+      :openPrint="openPrint"
+      :dataVal="filteredUser"
+      @closePrint="openPrint = false"
+    />
   </UDashboardPage>
 </template>
 
 <script>
 import { getData, setData } from 'nuxt-storage/local-storage';
 import { jwtDecode } from 'jwt-decode';
-import csv from "csvtojson";
 import * as d3 from "d3"
 const toast = useToast()
 const api = useApi()
@@ -216,7 +228,7 @@ const defaultColumns = [{
   label: 'Course',
   sortable: true
 }, {
-  key: 'years',
+  key: 'schoolYear',
   label: 'School Year',
   sortable: true
 }, {
@@ -248,6 +260,7 @@ export default {
       sort: { column: 'id', direction: 'asc'},
       input: "",
       isNewUserModalOpen: false,
+      openPrint: false,
       users: [],
       usersOrig: [],
       form:{
@@ -268,24 +281,29 @@ export default {
       schoolYearFilter: [],
       selectedSchoolYearFilter: [],
       reportTypeFilter: [
-        {
-          name: "Enrollment",
-          value: "enrollment",
-        },
-        {
-          name: "Graduates",
-          value: "graduate",
-        },
-        {
-          name: "Employment",
-          value: "employee",
-        },
+        "enrollment",
+        "graduate",
+        "employee"
+      ],
+      selectedReportTypeFilter: [
+        "enrollment",
+        "graduate",
+        "employee"
       ],
     }
   },
   computed: {
     columns(){
       return defaultColumns.filter(column => this.selectedColumns.includes(column))
+    },
+    filteredUser(){
+      return this.users.filter(el => 
+        this.selectedCourseFilter.includes(el.course) && 
+        this.selectedSchoolYearFilter.includes(el.schoolYear) && 
+        this.selectedReportTypeFilter.includes(el.reportType)
+      )
+      
+      // return this.users
     },
     user: function(){
       let token = localStorage.getItem('userToken')
@@ -310,6 +328,47 @@ export default {
     this.getList();
   },
   methods:{
+    generatePrint(){
+      this.openPrint = true
+    },
+    async exportCSV(){
+      const content = [this.columns.map(col => this.wrapCsvValue(col.key))].concat(
+        this.users.map(row => this.columns.map(col => this.wrapCsvValue(
+            typeof col.key === 'function'
+            ? col.field(row)
+            : row[ col.field === void 0 ? col.key : col.key ],
+            col.format,
+            row
+        )).join(','))
+      ).join('\n')
+
+
+      console.log(content)
+      const anchor = document.createElement('a');
+      anchor.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(content);
+      anchor.target = '_blank';
+      anchor.download = 'DataReport.csv';
+      anchor.click();
+    },
+    wrapCsvValue (val, formatFn, row) {
+        let formatted = formatFn !== void 0
+            ? formatFn(val, row)
+            : val
+
+        formatted = formatted === void 0 || formatted === null
+            ? ''
+            : String(formatted)
+
+        formatted = formatted.split('"').join('""')
+        /**
+         * Excel accepts \n and \r in strings, but some other CSV parsers do not
+         * Uncomment the next two lines to escape new lines
+         */
+        // .split('\n').join('\\n')
+        // .split('\r').join('\\r')
+
+        return `"${formatted}"`
+    },
     async getFile(file){
       var reader = new FileReader();
       let filePath = file.target.files[0]
@@ -363,20 +422,6 @@ export default {
       this.isNewUserModalOpen = false
       
     },
-    filterDataList(){
-      console.log(this.selectedCourseFilter, this.selectedSchoolYearFilter)
-      // this.users.filter(el => {
-      //   if(
-      //     this.selectedCourseFilter.includes(el.course) || 
-      //     this.selectedSchoolYearFilter.includes(el.schoolYear)
-      //   ){
-      //     return el
-      //   } 
-      // })
-
-
-      // console.log(this.users)
-    },
     async getList(){
       this.users = []
       this.usersOrig = []
@@ -393,7 +438,9 @@ export default {
             sy.push(element.schoolYear)
           });
           this.courseFilter = courses.filter((e, i, self) => i === self.indexOf(e));
+          this.selectedCourseFilter = this.courseFilter
           this.schoolYearFilter = sy.filter((e, i, self) => i === self.indexOf(e));
+          this.selectedSchoolYearFilter = this.schoolYearFilter
         } else {
           // show Error
           console.log('there is some error')
