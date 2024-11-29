@@ -143,12 +143,13 @@ CREATE TABLE IF NOT EXISTS `tblusers` (
   `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table genan_db.tblusers: ~0 rows (approximately)
+-- Dumping data for table genan_db.tblusers: ~1 rows (approximately)
 DELETE FROM `tblusers`;
 INSERT INTO `tblusers` (`id`, `username`, `password`, `firstName`, `lastName`, `middleName`, `suffix`, `sex`, `email`, `contact`, `address`, `userType`, `status`, `isDeleted`, `createdAt`, `updatedAt`) VALUES
-	(1, 'admin', '5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8', 'First', 'User', 'A', ' ', 'Male', 'test@mail.com', '09876543211', 'test address', 1, 1, 0, '2024-10-12 14:35:21', '2024-10-12 14:35:21');
+	(1, 'admin', '5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8', 'First', 'User', 'A', ' ', 'Male', 'test@mail.com', '09876543211', 'test address', 1, 1, 0, '2024-10-12 14:35:21', '2024-10-12 14:35:21'),
+	(2, 'testuser', '5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8', 'sadasd', 'dsds', 'ddd', '', '', 'test@mail.com', '09876543211', '', 2, 1, 0, '2024-11-29 01:54:45', '2024-11-29 01:54:45');
 
 -- Dumping structure for table genan_db.tblusertypes
 CREATE TABLE IF NOT EXISTS `tblusertypes` (

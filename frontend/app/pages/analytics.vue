@@ -163,10 +163,8 @@ import { group, select } from 'd3';
                     selected = res.data
                 }
 
-                selected.sort((a, b) => +(a.group.title > b.group.title) || -(a.group.title < b.group.title))
-                console.log(selected)
-
                 if(this.filters.reportType === 'enrollment'){
+                  selected.sort((a, b) => +(a.group.title > b.group.title) || -(a.group.title < b.group.title))
                     selected.forEach(el => {
                         groups.push(el.group)
                         series.push(...el.series)
