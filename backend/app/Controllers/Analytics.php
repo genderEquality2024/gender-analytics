@@ -53,7 +53,10 @@ class Analytics extends BaseController
         //Get API Request Data from NuxtJs
         $data = $this->request->getJSON();
         
-        $query = $this->analyticsModel->getOptionsGraph([
+        $query = $data->reportType !== 'employee' ? $this->analyticsModel->getOptionsGraph([
+            "schoolYear" => $data->schoolYear,
+            "reportType" => $data->reportType,
+        ]) : $this->analyticsModel->getOptionsEmployeeGraph([
             "schoolYear" => $data->schoolYear,
             "reportType" => $data->reportType,
         ]);
@@ -62,8 +65,8 @@ class Analytics extends BaseController
 
         foreach ($query as $key => $value){
             $list[$key] = [
-                "name" => $value->course,
-                "value" => $value->course
+                "name" => $data->reportType !== 'employee' ? $value->course : $value->term,
+                "value" => $data->reportType !== 'employee' ? $value->course : $value->term
             ];
         }
 
@@ -207,11 +210,22 @@ class Analytics extends BaseController
     public function getGraphAnalytics(){
         //Get API Request Data from NuxtJs
         $data = $this->request->getJSON();
-        $query = $this->analyticsModel->getAllYearRangeData([
+
+        $where = [
             "schoolYear" => $data->schoolYear,
             "reportType" => $data->reportType,
             "course" => $data->course,
-        ]);
+        ];
+
+        if($data->reportType === 'employee'){
+            $where = [
+                "schoolYear" => $data->schoolYear,
+                "reportType" => $data->reportType,
+                "term" => $data->course,
+            ];
+        }
+
+        $query = $this->analyticsModel->getAllYearRangeData($where);
         $list = [];
 
         foreach ($query as $key => $value){
@@ -236,27 +250,12 @@ class Analytics extends BaseController
                 ];
             } else if($data->reportType === 'employee'){
                 // $list[$value->term] = 
+                // $list[$key] = $value;
                 $list[$key] = (object)[
-                    "group" => (object)[
-                        "title"=> $value->course,
-                        "cols"=> 2,
-                    ],
-                    "series" => [
-                        (object)[
-                            "x" =>  $value->term,
-                            "fillColor" =>  "#3b82f6",
-                            "y" =>  (int)$value->male,
-                        ],
-                        (object)[
-                            "x" =>  $value->term,
-                            "fillColor" =>  "#f43f5e",
-                            "y" =>  (int)$value->female,
-                        ],
-                        (object)[
-                            "x" =>  $value->term,
-                            "fillColor" =>  "#f43f5e",
-                            "y" =>  (int)$value->vacant,
-                        ],
+                    "group" => $value->course,
+                    "series" => (object)[
+                        "name" =>  $value->course,
+                        "data" =>  [(int)$value->male, (int)$value->female, (int)$value->vacant],
                     ]
                 ];
             } else if($data->reportType === 'graduate'){

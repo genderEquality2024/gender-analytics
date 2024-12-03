@@ -41,23 +41,17 @@
         },
         watch:{
             chartData(newData){
+                console.log(newData)
                 if(newData){
-                    this.$refs.realtimeChart.updateSeries([{
-                        data: newData,
-                    }], false, true);
+                    this.$refs.realtimeChart.updateSeries(newData, false, true);
                 }
             },
             groupData(newData){
                 if(newData){
                     this.$refs.realtimeChart.updateOptions({
                         xaxis: {
-                            group: {
-                                style: {
-                                    fontSize: '10px',
-                                    fontWeight: 700
-                                },
-                                groups: newData
-                            }
+                            type: 'text',
+                            categories: newData,
                         },
                     });
                 }
@@ -68,31 +62,12 @@
                     this.emitValue()
                 } else {
                     this.$refs.realtimeChart.updateSeries([{
-                        data: [
-                            {
-                                "x": "Male",
-                                "fillColor": "#3b82f6",
-                                "y": 0
-                            },
-                            {
-                                "x": "Female",
-                                "fillColor": "#f43f5e",
-                                "y": 0
-                            }
-                        ],
+                        data: [],
                     }], false, true);
                     this.$refs.realtimeChart.updateOptions({
                         xaxis: {
-                            group: {
-                                style: {
-                                    fontSize: '10px',
-                                    fontWeight: 700
-                                },
-                                groups: [{
-                                    "title": "Year - YYYY-YYYY",
-                                    "cols": 2
-                                }]
-                            }
+                            type: 'text',
+                            categories: [],
                         },
                     });
                 }
@@ -101,30 +76,57 @@
         data(){
             return {
                 selectedValue: null,
-                series: [{
-                    name: "enrollment",
-                    data: []
-                }],
+                series: [],
                 chartOptions: {
                     chart: {
                         type: 'bar',
-                        height: 280
-                    },
-                    xaxis: {
-                        type: 'category',
-                        labels: {
-                            formatter: function(val) {
-                                return val
-                            }
+                        height: 350,
+                        stacked: true,
+                        toolbar: {
+                            show: true
                         },
-                        group: {
-                            style: {
-                                fontSize: '10px',
-                                fontWeight: 700
-                            },
-                            groups: []
+                        zoom: {
+                            enabled: true
                         }
                     },
+                    responsive: [{
+                        breakpoint: 480,
+                        options: {
+                            legend: {
+                                position: 'bottom',
+                                offsetX: -10,
+                                offsetY: 0
+                            }
+                        }
+                    }],
+                    plotOptions: {
+                        bar: {
+                            horizontal: false,
+                            borderRadius: 10,
+                            borderRadiusApplication: 'end', // 'around', 'end'
+                            borderRadiusWhenStacked: 'last', // 'all', 'last'
+                            dataLabels: {
+                            total: {
+                                enabled: true,
+                                style: {
+                                fontSize: '13px',
+                                fontWeight: 900
+                                }
+                            }
+                            }
+                        },
+                    },
+                    xaxis: {
+                        type: 'text',
+                        categories: [],
+                    },
+                    legend: {
+                        position: 'right',
+                        offsetY: 40
+                    },
+                    fill: {
+                        opacity: 1
+                    }
                 },
             }
         },
@@ -159,14 +161,9 @@
                 }], false, true);
                 this.$refs.realtimeChart.updateOptions({
                     xaxis: {
-                        group: {
-                            style: {
-                                fontSize: '10px',
-                                fontWeight: 700
-                            },
-                            groups: groups
-                        }
-                    },
+                        type: 'text',
+                        categories: groups,
+                    }
                 });
             }
         }

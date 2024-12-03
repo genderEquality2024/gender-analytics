@@ -36,7 +36,7 @@
                 </UFormGroup>
                 <UFormGroup
                   class="row-span-3"
-                  label="Courses/School"
+                  label="Courses/School/Employment Category"
                   name="course"
                 >
                   <USelect 
@@ -55,7 +55,7 @@
             <div class="grid lg:grid-cols-1 lg:items-start gap-8">
               <!-- ~/components/home/HomeChart.vue -->
               <AnalyticsEnrollChart
-                v-show="(filters.reportType === 'enrollment' || filters.reportType === 'employee') && seriesData.length > 0"
+                v-show="(filters.reportType === 'enrollment') && seriesData.length > 0"
                 :chartData.sync="seriesData"
                 :groupData.sync="groupData"
               />
@@ -188,7 +188,10 @@ import { group, select } from 'd3';
                     })
 
                 } else if(this.filters.reportType === 'employee'){
-                    
+                  for(const i in res.data){
+                    series.push(res.data[i].series)
+                    groups = ['Male', 'Female', 'Vacant']
+                  }
                 }
                 
                 console.log(series)

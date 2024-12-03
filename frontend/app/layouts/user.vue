@@ -136,9 +136,9 @@ const colors = computed(() => defaultColors.value.map(color => ({ ...color, acti
       </UDashboardNavbar>
 
       <UDashboardSidebar>
-        <template #header>
+        <!-- <template #header>
           <UDashboardSearchButton />
-        </template>
+        </template> -->
 
         <UDashboardSidebarLinks :links="links" />
 
@@ -150,13 +150,22 @@ const colors = computed(() => defaultColors.value.map(color => ({ ...color, acti
         /> -->
 
         <div class="flex-1" />
-
+        <UDashboardSection
+          title="Theme"
+          description="Look and feel of your dashboard."
+        >
+          <template #links>
+            <UColorModeSelect color="gray" />
+          </template>
+        </UDashboardSection>
         <UDashboardSidebarLinks :links="footerLinks" />
 
         <UDivider class="sticky bottom-0" />
+       
 
         <template #footer>
           <!-- ~/components/UserDropdown.vue -->
+          
           <UserDropdown />
         </template>
       </UDashboardSidebar>

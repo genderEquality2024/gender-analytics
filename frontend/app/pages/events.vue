@@ -46,10 +46,9 @@
           class="space-y-4"
           @submit="onSubmit"
         >
-          
           <UFormGroup
-            label="File Title"
-            name="fileTitle"
+            label="Event Title"
+            name="eventTitle"
           >
             <UInput
               v-model="form.title"
@@ -57,9 +56,18 @@
             />
           </UFormGroup>
           <UFormGroup
-            label="Import File"
+            label="Event Date"
+            name="eventTitle"
+          >
+            <UInput
+              type="date"
+              v-model="form.eventType"
+            />
+          </UFormGroup>
+          <UFormGroup
+            label="Import Evaluation Questionaire"
             name="import"
-            help="Only PDF file can be uploaded"
+            help="Please download the template below link"
           >
             <UInput
               @input="(evt) => {return getFile(evt)}"
@@ -69,6 +77,9 @@
               accept="application/pdf"
             />
           </UFormGroup>
+          <div class="text-right text-sky-500">
+            <a href="/docs/evaluation-format.csv" download="evaluation-format.csv" target="_blank">Click Here to Download Template</a>
+          </div>
 
           <div class="mt-1 flex justify-end gap-3">
             <UButton
