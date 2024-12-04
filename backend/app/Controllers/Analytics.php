@@ -64,10 +64,18 @@ class Analytics extends BaseController
         $list = [];
 
         foreach ($query as $key => $value){
-            $list[$key] = [
-                "name" => $data->reportType !== 'employee' ? $value->course : $value->term,
-                "value" => $data->reportType !== 'employee' ? $value->course : $value->term
-            ];
+            if($data->reportType === 'employee'){
+                $list[$value->term][$key] = [
+                    "name" => $value->course,
+                    "value" => $value->course,
+                ];
+            } else {
+                $list[$key] = [
+                    "name" => $data->reportType !== 'employee' ? $value->course : $value->term,
+                    "value" => $data->reportType !== 'employee' ? $value->course : $value->term
+                ];
+            }
+            
         }
 
         if($list){
@@ -222,6 +230,7 @@ class Analytics extends BaseController
                 "schoolYear" => $data->schoolYear,
                 "reportType" => $data->reportType,
                 "term" => $data->course,
+                "course" => $data->department,
             ];
         }
 

@@ -35,13 +35,40 @@
                   />
                 </UFormGroup>
                 <UFormGroup
+                  v-if="filters.reportType !== 'employee'"
                   class="row-span-3"
-                  label="Courses/School/Employment Category"
+                  label="Courses/School"
                   name="course"
                 >
                   <USelect 
                     v-model="filters.course" 
                     :options="courseOpt" 
+                    option-attribute="name"
+                    @change="getListSelection"
+                  />
+                </UFormGroup>
+                <UFormGroup
+                  v-if="filters.reportType === 'employee'"
+                  class="row-span-3"
+                  label="Employment Category"
+                  name="course"
+                >
+                  <USelect 
+                    v-model="filters.course" 
+                    :options="courseOpt" 
+                    option-attribute="name"
+                    @change="getDepartmentSelection"
+                  />
+                </UFormGroup>
+                <UFormGroup
+                  v-show="filters.reportType === 'employee'"
+                  class="row-span-3"
+                  label="Department"
+                  name="course"
+                >
+                  <USelect
+                    v-model="filters.department" 
+                    :options="schoolOpt" 
                     option-attribute="name"
                     @change="getListSelection"
                   />
@@ -86,16 +113,20 @@ import { group, select } from 'd3';
       layout: 'user'
     })
     
-    export default {
+export default {
         data() {
             return {
             filters: {
-                reportType: 'enrollment',
-                course: ''
+              reportType: 'enrollment',
+              course: '',
+              department: '',
             },
+
             selectedYears: "2024 - 2025",
             showCharts: false,
             courseOpt: [],
+            schoolOpt: [],
+            departments: [],
             chartOptions: [],
             chartGradOptions: [],
             seriesData: [],
@@ -132,8 +163,23 @@ import { group, select } from 'd3';
             api.post("analytics/get/graph/options", payload).then((res) => {
               let response = {...res.data}
               if(!response.error){
-                this.courseOpt = res.data
-                this.filters.course = this.courseOpt[0].value
+
+                if(this.filters.reportType === 'employee'){
+                  this.courseOpt = []
+                  this.departments = res.data
+                  for (const i in res.data) {
+                    this.courseOpt.push({
+                      name: i,
+                      value: i,
+                    })
+                  }
+                  this.filters.course = this.courseOpt[0].value
+                  this.getDepartmentSelection()
+                } else {
+                  this.courseOpt = res.data
+                  this.filters.course = this.courseOpt[0].value
+                }
+                
                 this.getListSelection()
               } else {
                 // show Error
@@ -141,10 +187,17 @@ import { group, select } from 'd3';
               }
             })
         },
-    
+        getDepartmentSelection(){
+          let typeData = typeof this.departments[this.filters.course];
+          this.schoolOpt = typeData === 'object' ? Object.values(this.departments[this.filters.course]) : this.departments[this.filters.course]
+
+          this.filters.department = this.schoolOpt[0].value
+
+          this.getListSelection()
+        },
         async getListSelection(){
             let payload = {
-            schoolYear: this.selectedYears,
+              schoolYear: this.selectedYears,
               ...this.filters
             }
             api.post("analytics/get/graph", payload).then((res) => {
@@ -194,8 +247,6 @@ import { group, select } from 'd3';
                   }
                 }
                 
-                console.log(series)
-                console.log(groups)
                 this.seriesData = series
                 this.groupData = groups
               } else {

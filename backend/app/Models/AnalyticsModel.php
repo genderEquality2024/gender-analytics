@@ -63,7 +63,7 @@ class AnalyticsModel extends Model
     }
     public function getOptionsEmployeeGraph($where){
 
-        $sql = "SELECT term FROM ".$this->table." WHERE schoolYear = :schoolYear: AND reportType = :reportType: GROUP BY term";
+        $sql = "SELECT term, course FROM ".$this->table." WHERE schoolYear = :schoolYear: AND reportType = :reportType:";
        
         $query = $this->db->query($sql, $where);
         $results = $query->getResult();
