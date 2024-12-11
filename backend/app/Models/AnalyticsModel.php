@@ -46,7 +46,19 @@ class AnalyticsModel extends Model
     }
     public function getAllYearRangeData($where){
 
-        $query = $this->db->table($this->table)->where($where)->get();
+        // $query = $this->db->table($this->table)->where($where)->get();
+        // $results = $query->getResult();
+
+        // return $results;
+        $sql = "";
+        if($where['reportType'] === 'employee'){
+            $sql = "SELECT * FROM ".$this->table." WHERE yearFrom BETWEEN :yearFrom: AND :yearTo: AND reportType = :reportType: AND course = :course: AND term = :term:";
+        } else {
+            $sql = "SELECT * FROM ".$this->table." WHERE yearFrom BETWEEN :yearFrom: AND :yearTo: AND reportType = :reportType: AND course = :course:";
+        }
+       
+       
+        $query = $this->db->query($sql, $where);
         $results = $query->getResult();
 
         return $results;
@@ -54,7 +66,7 @@ class AnalyticsModel extends Model
 
     public function getOptionsGraph($where){
 
-        $sql = "SELECT course FROM ".$this->table." WHERE schoolYear = :schoolYear: AND reportType = :reportType: GROUP BY course";
+        $sql = "SELECT course FROM ".$this->table." WHERE yearFrom BETWEEN :yearFrom: AND :yearTo: AND reportType = :reportType: GROUP BY course";
        
         $query = $this->db->query($sql, $where);
         $results = $query->getResult();
@@ -63,7 +75,7 @@ class AnalyticsModel extends Model
     }
     public function getOptionsEmployeeGraph($where){
 
-        $sql = "SELECT term, course FROM ".$this->table." WHERE schoolYear = :schoolYear: AND reportType = :reportType:";
+        $sql = "SELECT term, course FROM ".$this->table." WHERE yearFrom BETWEEN :yearFrom: AND :yearTo: AND reportType = :reportType:";
        
         $query = $this->db->query($sql, $where);
         $results = $query->getResult();

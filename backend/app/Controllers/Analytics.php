@@ -54,10 +54,12 @@ class Analytics extends BaseController
         $data = $this->request->getJSON();
         
         $query = $data->reportType !== 'employee' ? $this->analyticsModel->getOptionsGraph([
-            "schoolYear" => $data->schoolYear,
+            "yearFrom" => $data->from,
+            "yearTo" => $data->to,
             "reportType" => $data->reportType,
         ]) : $this->analyticsModel->getOptionsEmployeeGraph([
-            "schoolYear" => $data->schoolYear,
+            "yearFrom" => $data->from,
+            "yearTo" => $data->to,
             "reportType" => $data->reportType,
         ]);
 
@@ -66,12 +68,12 @@ class Analytics extends BaseController
         foreach ($query as $key => $value){
             if($data->reportType === 'employee'){
                 $list[$value->term][$key] = [
-                    "name" => $value->course,
+                    "label" => $value->course,
                     "value" => $value->course,
                 ];
             } else {
                 $list[$key] = [
-                    "name" => $data->reportType !== 'employee' ? $value->course : $value->term,
+                    "label" => $data->reportType !== 'employee' ? $value->course : $value->term,
                     "value" => $data->reportType !== 'employee' ? $value->course : $value->term
                 ];
             }
@@ -220,14 +222,16 @@ class Analytics extends BaseController
         $data = $this->request->getJSON();
 
         $where = [
-            "schoolYear" => $data->schoolYear,
+            "yearFrom" => $data->from,
+            "yearTo" => $data->to,
             "reportType" => $data->reportType,
             "course" => $data->course,
         ];
 
         if($data->reportType === 'employee'){
             $where = [
-                "schoolYear" => $data->schoolYear,
+                "yearFrom" => $data->from,
+                "yearTo" => $data->to,
                 "reportType" => $data->reportType,
                 "term" => $data->course,
                 "course" => $data->department,

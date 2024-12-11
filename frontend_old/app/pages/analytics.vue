@@ -108,10 +108,10 @@
 <script>
 import { group, select } from 'd3';
 
-    const api = useApi()
-    definePageMeta({
-      layout: 'user'
-    })
+const api = useApi()
+definePageMeta({
+  layout: 'user'
+})
     
 export default {
         data() {

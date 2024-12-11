@@ -1,42 +1,40 @@
 {
-  "name": "nuxt-ui-pro-template-dashboard",
+  "name": "muse-vue-ant-design-dashboard",
+  "version": "1.0.0",
+  "description": "A user-friendly, open source and beautiful dashboard based on Ant Design Vue.",
+  "main": "src/main.js",
+  "homepage": "https://demos.creative-tim.com/muse-ant-design-dashboard/",
+  "repository": "https://github.com/creativetimofficial/muse-ant-design-dashboard",
+  "license": "MIT",
   "private": true,
-  "type": "module",
   "scripts": {
-    "build": "nuxt build",
-    "dev": "nuxt dev",
-    "generate": "nuxt generate",
-    "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
-    "lint": "eslint .",
-    "typecheck": "nuxt typecheck"
+    "serve": "vue-cli-service serve --open",
+    "build": "cross-env CI=false cross-env PUBLIC_URL=/ vue-cli-service build",
+    "dev": "npm run serve"
   },
   "dependencies": {
-    "@iconify-json/heroicons": "^1.2.0",
-    "@iconify-json/simple-icons": "^1.2.3",
-    "@nuxt/fonts": "^0.8.0",
-    "@nuxt/ui-pro": "^1.4.2",
-    "@nuxtjs/axios": "^5.13.6",
-    "@unovis/ts": "^1.4.4",
-    "@unovis/vue": "^1.4.4",
-    "@vueuse/nuxt": "^11.1.0",
-    "apexcharts": "^3.54.1",
-    "axios": "^1.7.7",
-    "csvtojson": "^2.0.10",
+    "ant-design-vue": "1.7.6",
+    "apexcharts": "^4.2.0",
+    "axios": "^1.7.9",
+    "chart.js": "3.4.1",
+    "core-js": "3.15.2",
     "d3": "^7.9.0",
-    "date-fns": "^4.1.0",
     "jwt-decode": "^4.0.0",
     "moment": "^2.30.1",
-    "nuxt": "^3.13.2",
-    "nuxt-storage": "^1.2.2",
     "pdf-lib": "^1.17.1",
     "qalendar": "^3.9.0",
-    "v-calendar": "^3.1.2",
-    "vue3-apexcharts": "^1.7.0"
+    "vue": "2.6.14",
+    "vue-apexcharts": "^1.7.0",
+    "vue-github-buttons": "^3.1.0",
+    "vue-router": "3.5.2"
   },
   "devDependencies": {
-    "@nuxt/eslint": "^0.5.7",
-    "eslint": "^9.10.0",
-    "vue-tsc": "^2.1.6"
+    "@vue/cli-plugin-babel": "4.5.13",
+    "@vue/cli-plugin-router": "4.5.13",
+    "@vue/cli-service": "4.5.13",
+    "cross-env": "^7.0.3",
+    "node-sass": "^9.0.0",
+    "sass-loader": "^10",
+    "vue-template-compiler": "2.6.14"
   }
 }

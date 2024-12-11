@@ -1,0 +1,343 @@
+<!-- 
+	This is the dashboard page, it uses the dashboard layout in: 
+	"./layouts/Dashboard.vue" .
+ -->
+
+ <template>
+	<div>
+		<!-- Counter Widgets -->
+		<a-row :gutter="24">
+			<a-col :span="24" :lg="24" class="mb-24">
+				Search Filter
+			</a-col>
+			<a-col :span="24" :lg="3" class="mb-24">
+        <a-form :label-col="{ span: 24 }" :wrapper-col="{ span: 24 }">
+          <a-form-item label="Year From">
+              <a-select
+                  v-model="selectedYears.from"
+                  v-decorator="[
+                    'schoolYeaer',
+                    { rules: [{ required: true, message: 'Please select year' }] },
+                  ]"
+                  placeholder="Select a Year"
+                  :options="yearMultipleOpts"
+                  @change="changeYear"
+              />
+          </a-form-item>
+        </a-form>
+			</a-col>
+			<a-col :span="24" :lg="3" class="mb-24">
+        <a-form :label-col="{ span: 24 }" :wrapper-col="{ span: 24 }">
+          <a-form-item label="Year To">
+              <a-select
+                  v-model="selectedYears.to"
+                  v-decorator="[
+                    'schoolYeaer',
+                    { rules: [{ required: true, message: 'Please select year' }] },
+                  ]"
+                  placeholder="Select a Year"
+                  :options="yearMultipleOpts"
+                  @change="changeYear"
+              />
+          </a-form-item>
+        </a-form>
+			</a-col>
+			<a-col :span="24" :lg="6" class="mb-24">
+				<a-form :label-col="{ span: 24 }" :wrapper-col="{ span: 24 }">
+          <a-form-item label="Type of Report">
+              <a-select
+                  v-model="filters.reportType"
+                  v-decorator="[
+                      'reportType',
+                      { rules: [{ required: true, message: 'Please select type of report' }] },
+                  ]"
+                  placeholder="Select Type of Report"
+                  :options="typeOfReportOpt"
+                  @change="getCourceList"
+              />
+          </a-form-item>
+        </a-form>
+			</a-col>
+			<a-col v-if="filters.reportType !== 'employee'" :span="24" :lg="6" class="mb-24">
+				<a-form :label-col="{ span: 24 }" :wrapper-col="{ span: 24 }">
+          <a-form-item label="School/Courses">
+            <a-select
+                v-model="filters.course"
+                v-decorator="[
+                    'course',
+                    { rules: [{ required: true, message: 'Please select your gender!' }] },
+                ]"
+                placeholder="Select a School/Course"
+                :options="courseOpt"
+                @change="getListSelection"
+            />
+          </a-form-item>
+        </a-form>
+			</a-col>
+			<a-col v-if="filters.reportType === 'employee'" :span="24" :lg="6" class="mb-24">
+				<a-form :label-col="{ span: 24 }" :wrapper-col="{ span: 24 }">
+          <a-form-item label="Employee Category">
+            <a-select
+                v-model="filters.course"
+                v-decorator="[
+                    'course',
+                    { rules: [{ required: true, message: 'Please select your gender!' }] },
+                ]"
+                placeholder="Select a Employee Category"
+                :options="courseOpt"
+                @change="getDepartmentSelection"
+            />
+          </a-form-item>
+        </a-form>
+			</a-col>
+			<a-col v-if="filters.reportType === 'employee'" :span="24" :lg="6" class="mb-24">
+				<a-form :label-col="{ span: 24 }" :wrapper-col="{ span: 24 }">
+          <a-form-item label="Department">
+              <a-select
+                v-model="filters.department"
+                v-decorator="[
+                    'department',
+                    { rules: [{ required: true, message: 'Please select year' }] },
+                ]"
+                placeholder="Select a Year"
+                :options="schoolOpt"
+                @change="getDepartmentSelection"
+              />
+          </a-form-item>
+        </a-form>
+			</a-col>
+		</a-row>
+		<!-- / Counter Widgets -->
+
+		<!-- Charts -->
+		<a-row :gutter="24" type="flex" align="stretch">
+			<a-col :span="24" :lg="24" class="mb-24">
+				<CardBarChart
+          v-if="(filters.reportType === 'enrollment')"
+          :chartData.sync="seriesData"
+          :groupData.sync="groupData"
+        />
+				<CardLineChart
+          v-if="(filters.reportType === 'graduate')"
+          :chartData.sync="seriesData"
+          :groupData.sync="groupData"
+        />
+				<CardLineChart
+          v-if="(filters.reportType === 'graduate')"
+          :chartData.sync="seriesData"
+          :groupData.sync="groupData"
+        />
+				<CardEmployeeChart
+          v-if="(filters.reportType === 'employee')"
+          :chartData.sync="seriesData"
+          :groupData.sync="groupData"
+        />
+			</a-col>
+		</a-row>
+		<!-- / Charts -->
+
+	</div>
+</template>
+
+<script>
+import moment from "moment";
+import CardBarChart from '../components/Cards/Analytics/CardBarChart' ;
+import CardLineChart from '../components/Cards/Analytics/CardLineChart' ;
+import CardEmployeeChart from '../components/Cards/Analytics/CardEmployeeChart' ;
+export default ({
+	components: {
+		CardLineChart,
+    CardBarChart,
+    CardEmployeeChart
+	},
+	data() {
+		return {
+			// Counter Widgets Stats
+			filters: {
+              reportType: 'enrollment',
+              course: '',
+              department: '',
+            },
+
+            selectedYears: {
+              from: "2019",
+              to: "2024"
+            },
+            showCharts: false,
+            courseOpt: [],
+            schoolOpt: [],
+            departments: [],
+            chartOptions: [],
+            chartGradOptions: [],
+            seriesData: {
+              male: [],
+              female: [],
+            },
+            groupData: [],
+            typeOfReportOpt: [
+                {
+                    label: "Enrollment",
+                    value: "enrollment",
+                },
+                {
+                    label: "Graduates",
+                    value: "graduate",
+                },
+                {
+                    label: "Employment",
+                    value: "employee",
+                },
+            ],
+		}
+	},
+    computed:{
+        yearMultipleOpts(){
+            let res = []
+            let startDate = 1997
+
+            for (let index = 27; index < 90; index++) {
+                let val = moment(startDate).add(index, 'y').format('YYYY')
+                res.push({
+                    label: val,
+                    value: val
+                })
+            }
+
+            return res
+        },
+    },
+    created(){
+      this.getCourceList()
+    },
+    methods:{
+        moment,
+        changeYear(){
+            this.getCourceList()
+        },
+        async getCourceList(){
+            let payload = {
+              from: this.selectedYears.from,
+              to: this.selectedYears.to,
+              reportType: this.filters.reportType
+            }
+            this.$api.post("analytics/get/graph/options", payload).then((res) => {
+              let response = {...res.data}
+              if(!response.error){
+
+                if(this.filters.reportType === 'employee'){
+                  this.courseOpt = []
+                  this.departments = res.data
+                  for (const i in res.data) {
+                    this.courseOpt.push({
+                      label: i,
+                      value: i,
+                    })
+                  }
+                  this.filters.course = this.courseOpt[0].value
+                  this.getDepartmentSelection()
+                } else {
+                  this.courseOpt = res.data
+                  this.filters.course = this.courseOpt[0].value
+                }
+                
+                this.getListSelection()
+              } else {
+                // show Error
+                console.log('there is some error')
+              }
+            })
+        },
+        getDepartmentSelection(){
+          let typeData = typeof this.departments[this.filters.course];
+          this.schoolOpt = typeData === 'object' ? Object.values(this.departments[this.filters.course]) : this.departments[this.filters.course]
+
+          this.filters.department = this.schoolOpt[0].value
+
+          this.getListSelection()
+        },
+        async getListSelection(){
+            let payload = {
+              from: this.selectedYears.from,
+              to: this.selectedYears.to,
+              ...this.filters
+            }
+            this.$api.post("analytics/get/graph", payload).then((res) => {
+              let response = {...res.data}
+              if(!response.error){
+                
+                let selected = [];
+                let series = []
+                let groups = []
+
+                if(typeof res.data === "object"){
+                    for (const el in res.data) {
+                        selected.push(res.data[el])
+                    }
+                } else {
+                    selected = res.data
+                }
+
+                if(this.filters.reportType === 'enrollment'){
+                  series = {
+                    male: [],
+                    female: [],
+                  }
+                  selected.sort((a, b) => +(a.group.title > b.group.title) || -(a.group.title < b.group.title))
+                  selected.forEach(el => {
+                    groups.push(el.group.title)
+                    
+                    el.series.forEach(sel => {
+                      if(sel.x === 'Male'){
+                        series.male.push(sel.y)
+                      } else {
+                        series.female.push(sel.y)
+                      }
+                    })
+                  });
+                } else if(this.filters.reportType === 'graduate'){
+                    series = {
+                      male: [],
+                      female: [],
+                    }
+                    let maleSeries = []
+                    let femaleSeries = []
+                    for(const i in res.data){
+                        maleSeries.push(res.data[i].male)
+                        femaleSeries.push(res.data[i].female)
+                        groups.push(res.data[i].categories)
+                    }
+                    series.male = maleSeries
+                    series.female = femaleSeries
+
+                } else if(this.filters.reportType === 'employee'){
+                  series = {
+                    male: [],
+                    female: [],
+                    vacant: [],
+                  }
+                  res.data[0].series.data.forEach((el, indx) => {
+                    if(indx === 1){
+                      series.female.push(el)
+                    } else if(indx === 2){
+                      series.vacant.push(el)
+                    } else {
+                      series.male.push(el)
+                    }
+                  })
+
+                  groups = ['Male', 'Female', 'Vacant']
+                }
+                
+                // console.log(series, groups)
+                this.seriesData = series
+                this.groupData = groups
+              } else {
+                // show Error
+                console.log('there is some error')
+              }
+            })
+        },
+    }
+})
+
+</script>
