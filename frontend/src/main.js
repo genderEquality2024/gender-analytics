@@ -26,6 +26,7 @@ import './scss/app.scss';
 
 
 const baseURL = 'http://localhost:8080/index.php/gender_analytics/api/v1'
+// const baseURL = 'https://thesis-ascots-endpoints.site/gender-analytics/backend/public/gender_analytics/api/v1'
 
 const api = axios.create({ baseURL })
 

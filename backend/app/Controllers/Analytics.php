@@ -133,58 +133,42 @@ class Analytics extends BaseController
         $enrollment = 0;
         $employement = 0;
         $vacant = 0;
-        $chart = [];
-        $enChart = [];
+
+        $gradMale = 0;
+        $gradFemale = 0;
+        $enrMale = 0;
+        $enrFemale = 0;
+        $empMale = 0;
+        $empFemale = 0;
 
         $query = $this->analyticsModel->getDashboardAnalytics([
-            "schoolYear" => $data->schoolYear
+            "yearFrom" => $data->from,
+            "yearTo" => $data->to,
         ]);
         $resources = $this->documentModel->get()->getResult();
 
 
-        
+        // print_r($query);
+        // exit();
         foreach ($query as $key => $value){
+            
             if($value->reportType === "graduate"){
                 $graduates += (int)$value->male;
+                $gradMale += (int)$value->male;
                 $graduates += (int)$value->female;
-
-                // Series generate
-                // $chart[$value->course][$key]
-                $chart[$value->course][$key]["male"] = (int)$value->male;
-                $chart[$value->course][$key]["female"] = (int)$value->female;
-                $chart[$value->course][$key]["categories"] = $value->term;
-
+                $gradFemale += (int)$value->female;
             } else if($value->reportType === "enrollment"){
                 $enrollment += (int)$value->male;
+                $enrMale += (int)$value->male;
                 $enrollment += (int)$value->female;
-
-                // Series generate
-                $enChart[$value->course][$key] = (object)[
-                    "group" => (object)[
-                        "title"=> $value->term,
-                        "cols"=> 2,
-                    ],
-                    "series" => [
-                        (object)[
-                            "x" =>  "Male",
-                            "fillColor" =>  "#3b82f6",
-                            "y" =>  (int)$value->male,
-                        ],
-                        (object)[
-                            "x" =>  "Female",
-                            "fillColor" =>  "#f43f5e",
-                            "y" =>  (int)$value->female,
-                        ],
-                    ]
-                ];
+                $enrFemale += (int)$value->female;
             } else if($value->reportType === "employee"){
                 $employement += (int)$value->male;
+                $empMale += (int)$value->male;
                 $employement += (int)$value->female;
+                $empFemale += (int)$value->female;
                 $vacant += (int)$value->vacant;
             }
-
-
-            
         }    
         
         $list = [
@@ -194,8 +178,20 @@ class Analytics extends BaseController
             'employee' => $employement,
             'vacant' => $vacant,
             'resource' => sizeof($resources),
-            'dataAnalytics' => $chart,
-            'enrollAnalytics' => $enChart,
+            'genders' => [
+                "graduate" => [
+                    "male" => $gradMale,
+                    "female" => $gradFemale,
+                ],
+                "enrollment" => [
+                    "male" => $enrMale,
+                    "female" => $enrFemale,
+                ],
+                "employee" => [
+                    "male" => $empMale,
+                    "female" => $empFemale,
+                ]
+            ]
         ];
 
         if($list){

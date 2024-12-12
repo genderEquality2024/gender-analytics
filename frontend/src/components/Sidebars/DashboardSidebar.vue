@@ -17,7 +17,7 @@
 			<div class="brand">
 				<a-icon type="pie-chart" :style="{ fontSize: '24px', color: '#08c' }" />
 				<!-- <img src="images/logo-ct-black.png" alt="">  -->
-				<span>Gender Analytics</span>
+				<span>GENDER EQUALITY DASHBOARD</span>
 			</div>
 			<hr>
 

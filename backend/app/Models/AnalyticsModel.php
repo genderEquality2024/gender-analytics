@@ -39,7 +39,13 @@ class AnalyticsModel extends Model
 
     public function getDashboardAnalytics($where){
 
-        $query = $this->db->table($this->table)->where($where)->get();
+        // $query = $this->db->table($this->table)->where($where)->get();
+        // $results = $query->getResult();
+
+        // return $results;
+        $sql = "SELECT * FROM ".$this->table." WHERE yearFrom BETWEEN :yearFrom: AND :yearTo:";
+   
+        $query = $this->db->query($sql, $where);
         $results = $query->getResult();
 
         return $results;
