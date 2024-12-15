@@ -50,7 +50,7 @@
 					tooltips: {
 						enabled: true,
 						mode: "index",
-						intersect: false,
+						intersect: true,
 					},
 					scales: {
 						y: {

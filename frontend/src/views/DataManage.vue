@@ -200,8 +200,6 @@ export default ({
 				)).join(','))
 			).join('\n')
 
-
-			console.log(content)
 			const anchor = document.createElement('a');
 			anchor.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(content);
 			anchor.target = '_blank';

@@ -112,26 +112,20 @@
 		<!-- Charts -->
 		<a-row :gutter="24" type="flex" align="stretch">
 			<a-col :span="24" :lg="24" class="mb-24">
-				<CardBarChart
+				<!-- <CardBarChart
           v-if="(filters.reportType === 'enrollment')"
           :chartData.sync="seriesData"
           :groupData.sync="groupData"
-        />
+        /> -->
 				<CardLineChart
-          v-if="(filters.reportType === 'graduate')"
           :chartData.sync="seriesData"
           :groupData.sync="groupData"
         />
-				<CardLineChart
-          v-if="(filters.reportType === 'graduate')"
-          :chartData.sync="seriesData"
-          :groupData.sync="groupData"
-        />
-				<CardEmployeeChart
+				<!-- <CardEmployeeChart
           v-if="(filters.reportType === 'employee')"
           :chartData.sync="seriesData"
           :groupData.sync="groupData"
-        />
+        /> -->
 			</a-col>
 		</a-row>
 		<!-- / Charts -->

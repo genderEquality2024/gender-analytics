@@ -136,6 +136,8 @@ import * as d3 from "d3"
 					createdBy: Number(this.user.userId)
 					}
 				})
+
+				// console.log(csvData)
 				this.uploadCSVData(csvData)
 			// this.csvData = csvData
 			},
@@ -156,16 +158,16 @@ import * as d3 from "d3"
 					});
 
 					if(uploaded === data.length){
-					resolve({
-						message: 'Upload complete'
-					})
+						resolve({
+							message: 'Upload complete'
+						})
 					} else {
-					reject()
+						reject()
 					}
 				})
 			
 				this.$emit('updateTable')
-				this.isNewUserModalOpen = false
+				this.addUSerModal = false
 			
 			},
 		}

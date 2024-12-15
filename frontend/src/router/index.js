@@ -53,6 +53,12 @@ let routes = [
 		layout: "dashboard",
 		component: () => import('../views/Events.vue'),
 	},
+	{
+		path: '/settings',
+		name: 'Settings',
+		layout: "dashboard",
+		component: () => import('../views/Settings.vue'),
+	},
 
 
 	{

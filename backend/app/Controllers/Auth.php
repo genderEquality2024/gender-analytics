@@ -42,9 +42,6 @@ class Auth extends BaseController
     public function login(){
         //Get API Request Data from NuxtJs
         $data = $this->request->getJSON(); 
-        $options = [
-            'cost' => 12 // the default cost is 10
-        ];
         $hasPass = sha1($data->password);
 
         //Select Query for finding User Information

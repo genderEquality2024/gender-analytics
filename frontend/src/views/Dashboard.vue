@@ -57,7 +57,7 @@
 						<a-icon key="woman" type="woman" /> {{ stat.genders.female }}
 					</template>
 					<template v-else slot="actions" >
-						View Details
+						<a @click="goTo('/resources')">View Details</a>
 					</template>
 				</a-card>
 				
@@ -70,14 +70,24 @@
 			<a-col :span="24" :lg="10" class="mb-24">
 
 				<!-- Active Users Card -->
-				<CardBarChart></CardBarChart>
+				<CardLineChart
+					title="Enrolled Student Analytics"
+					description="5 years graph representation of the GAD"
+					:chartData.sync="seriesDataEnroll"
+          			:groupData.sync="groupDataEnroll"
+				></CardLineChart>
 				<!-- Active Users Card -->
 
 			</a-col>
 			<a-col :span="24" :lg="14" class="mb-24">
 				
 				<!-- Sales Overview Card -->
-				<CardLineChart></CardLineChart>
+				<CardLineChart
+					title="Graduate Student Analytics"
+					description="5 years graph representation of the GAD"
+					:chartData.sync="seriesDataGrad"
+          			:groupData.sync="groupDataGrad"
+				></CardLineChart>
 				<!-- / Sales Overview Card -->
 
 			</a-col>
@@ -95,6 +105,8 @@
 	import CardLineChart from '../components/Cards/CardLineChart' ;
 	// Counter Widgets
 	import WidgetCounter from '../components/Widgets/WidgetCounter' ;
+
+	const currentYear = moment().format('YYYY')
 
 	export default ({
 		components: {
@@ -166,35 +178,160 @@
 					caption: 'Total count of the document',
 					color: 'red',
 					icon: 'file-pdf'
-				},]
+				},],
+				seriesDataEnroll: [],
+				groupDataEnroll: [],
+				seriesDataGrad: [],
+				groupDataGrad: [],
 			}
 		},
 		created(){
 			this.getListSelection(this.selectedYears)
+			this.getEnrollmentData()
+			this.getGraduateData()
 		},
 		methods:{
 			moment,
+			goTo(route){
+				this.$router.push(route)
+			},
 			async getListSelection(dataYear){
 				let payload = {
 					...dataYear
 				}
 				this.$api.post("analytics/get/dashboard", payload).then((res) => {
-				let response = {...res.data}
-				if(!response.error){
-					this.dashboardCards[0].value = response.enrollment
-					this.dashboardCards[0].genders = response.genders.enrollment
-					this.dashboardCards[1].value = response.employee
-					this.dashboardCards[1].genders = response.genders.employee
-					this.dashboardCards[2].value = response.graduates
-					this.dashboardCards[2].genders = response.genders.graduate
-					this.dashboardCards[3].value = response.resource
-					
-				} else {
-					// show Error
-					console.log('there is some error')
-				}
+					let response = {...res.data}
+					if(!response.error){
+						this.dashboardCards[0].value = response.enrollment
+						this.dashboardCards[0].genders = response.genders.enrollment
+						this.dashboardCards[1].value = response.employee
+						this.dashboardCards[1].genders = response.genders.employee
+						this.dashboardCards[2].value = response.graduates
+						this.dashboardCards[2].genders = response.genders.graduate
+						this.dashboardCards[3].value = response.resource
+						
+					} else {
+						// show Error
+						console.log('there is some error')
+					}
 				})
 			},
+			async getEnrollmentData(){
+				let from = moment(currentYear).subtract(5, 'y').format('YYYY')
+				let to = currentYear
+
+				let payload = {
+					from,
+					to,
+					reportType: 'enrollment'
+				}
+				this.$api.post("analytics/get/graph/dashboard", payload).then((res) => {
+					let response = {...res.data}
+					if(!response.error){
+						let selected = [];
+						let series = {
+							male: [],
+							female: [],
+						}
+						let groups = []
+
+						if(typeof res.data === "object"){
+							for (const el in res.data) {
+								groups.push(el)
+								selected.push(res.data[el])
+							}
+						} else {
+							selected = res.data
+						}
+
+						// selected.sort((a, b) => +(a.group.title > b.group.title) || -(a.group.title < b.group.title))
+						selected.forEach((el) => {
+							let totalMale = 0
+							let totalFemale = 0
+							
+							el.forEach(sel => {
+								totalMale += sel[0].y
+								totalFemale += sel[1].y
+							})
+
+							series.male.push(totalMale)
+							series.female.push(totalFemale)
+						});
+
+						this.seriesDataEnroll = series
+                		this.groupDataEnroll = groups
+						
+					} else {
+						// show Error
+						console.log('there is some error')
+					}
+				})
+			},
+			async getGraduateData(){
+				let from = moment(currentYear).subtract(5, 'y').format('YYYY')
+				let to = currentYear
+
+				let payload = {
+					from,
+					to,
+					reportType: 'graduate'
+				}
+				this.$api.post("analytics/get/graph/dashboard", payload).then((res) => {
+					let response = {...res.data}
+					if(!response.error){
+						let selected = [];
+						let series = {
+							male: [],
+							female: [],
+						}
+						let groups = []
+						let maleSeries = []
+						let femaleSeries = []
+
+						if(typeof res.data === "object"){
+							for (const el in res.data) {
+								groups.push(el)
+								selected.push(res.data[el])
+							}
+						} else {
+							selected = res.data
+						}
+						
+						// selected.sort((a, b) => +(a.group.title > b.group.title) || -(a.group.title < b.group.title))
+						selected.forEach((el) => {
+							let totalMale = 0
+							let totalFemale = 0
+							if(typeof el === "object"){
+								console.log('obj', el)
+								for (const i in el) {
+									totalMale += el[i].male
+									totalFemale += el[i].female
+								}
+							} else {
+								console.log('arr', el)
+							}
+
+							series.male.push(totalMale)
+							series.female.push(totalFemale)
+						});
+						// for(const i in res.data){
+						// 	maleSeries.push(res.data[i].male)
+						// 	femaleSeries.push(res.data[i].female)
+						// 	groups.push(res.data[i].categories)
+						// }
+						// series.male = maleSeries
+						// series.female = femaleSeries
+
+						this.seriesDataGrad = series
+                		this.groupDataGrad = groups
+
+						
+					} else {
+						// show Error
+						console.log('there is some error')
+					}
+				})
+			}
 		}
 		// End
 	})

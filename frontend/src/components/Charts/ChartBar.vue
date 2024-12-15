@@ -20,6 +20,7 @@
 		},
 		watch:{
 			data(newVal){
+				this.chart.data = newVal
 				this.chart.update()
 			}
 		},

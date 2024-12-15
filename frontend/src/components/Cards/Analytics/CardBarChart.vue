@@ -2,7 +2,11 @@
 
 	<!-- Active Users Card -->
 	<a-card :bordered="false" class="dashboard-bar-chart">
-		<chart-bar v-if="barChartData.labels.length > 0" :height="220" :data.sync="barChartData"></chart-bar>
+		<chart-bar 
+			v-if="barChartData.labels.length > 0" 
+			:height="220" 
+			:data.sync="barChartData">
+		</chart-bar>
 		<div class="card-title">
 			<h6>Enrolled Student Data Analytics</h6>
 			<!-- <p>YYYY to YYYY</p> -->
@@ -52,10 +56,33 @@
 			ChartBar,
 		},
 		watch:{
-			chartData(){
-				this.barChartData.labels = this.groupData
-				this.barChartData.datasets[0].data = this.chartData.male
-				this.barChartData.datasets[1].data = this.chartData.female
+			chartData(newVal){
+
+				this.barChartData = {
+					labels: this.groupData,
+					datasets: [
+						{
+							label: "Male",
+							backgroundColor: '#218bfc',
+							borderWidth: 0,
+							borderSkipped: false,
+							borderRadius: 6,
+							data: newVal.male, //[0,1,2,3,4,5]
+							maxBarThickness: 40,
+						},
+						{
+							label: "Female",
+							backgroundColor: '#ff3371',
+							borderWidth: 0,
+							borderSkipped: false,
+							borderRadius: 6,
+							data: newVal.female,
+							maxBarThickness: 40,
+						},
+					],
+				}
+				// this.barChartData.datasets[0].data = newVal.male
+				// this.barChartData.datasets[1].data = newVal.female
 			}
 		},
 		computed:{

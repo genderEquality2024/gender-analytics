@@ -55,24 +55,24 @@
 					datasets: [
 						{
 							label: "Male",
-							tension: 0.4,
-							borderWidth: 0,
-							pointRadius: 0,
+							// tension: 0.4,
+							// borderWidth: 0,
+							// pointRadius: 0,
 							borderColor: "#1890FF",
-							borderWidth: 3,
+							// borderWidth: 3,
 							data: newVal.male,
-							maxBarThickness: 6
+							// maxBarThickness: 6
 
 						},
 						{
 							label: "Female",
-							tension: 0.4,
-							borderWidth: 0,
-							pointRadius: 0,
+							// tension: 0.4,
+							// borderWidth: 0,
+							// pointRadius: 0,
 							borderColor: "#B37FEB",
-							borderWidth: 3,
+							// borderWidth: 3,
 							data: newVal.female,
-							maxBarThickness: 6
+							// maxBarThickness: 6
 
 						}
 					],
@@ -104,24 +104,24 @@
 					datasets: [
 						{
 							label: "Male",
-							tension: 0.4,
-							borderWidth: 0,
-							pointRadius: 0,
+							// tension: 0.4,
+							// borderWidth: 0,
+							// pointRadius: 0,
 							borderColor: "#1890FF",
-							borderWidth: 3,
+							// borderWidth: 3,
 							data: [],
-							maxBarThickness: 6
+							// maxBarThickness: 6
 
 						},
 						{
 							label: "Female",
-							tension: 0.4,
-							borderWidth: 0,
-							pointRadius: 0,
+							// tension: 0.4,
+							// borderWidth: 0,
+							// pointRadius: 0,
 							borderColor: "#B37FEB",
-							borderWidth: 3,
+							// borderWidth: 3,
 							data: [],
-							maxBarThickness: 6
+							// maxBarThickness: 6
 
 						}
 					],

@@ -5,20 +5,21 @@
 		<template #title>
 			<a-row type="flex" align="middle">
 				<a-col :span="24" :md="12">
-					<h6 class="font-semibold m-0">Payment Methods</h6>
+					<h6 class="font-semibold m-0">Account Management</h6>
 				</a-col>
-				<a-col :span="24" :md="12" style="display: flex; align-items: center; justify-content: flex-end">
+				<!-- <a-col :span="24" :md="12" style="display: flex; align-items: center; justify-content: flex-end">
 					<a-button type="primary">
-						ADD NEW CARD
+						Change Password
 					</a-button>
-				</a-col>
+				</a-col> -->
 			</a-row>
 		</template>
 		<a-row :gutter="[24, 24]">
 			<a-col :span="24" :md="12">
 				<a-card class="payment-method-card">
-					<img src="images/logos/mastercard-logo.png" alt="">
-					<h6 class="card-number">**** **** **** 7362</h6>
+					<!-- <img src="images/logos/visa-logo.png" alt=""> -->
+					<a-icon type="user" :style="{fontSize: '32px'}" />
+					<h6 class="card-number">{{ user.aud }}</h6>
 					<a-button type="link">
 						<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 							<path class="fill-gray-7" d="M13.5858 3.58579C14.3668 2.80474 15.6332 2.80474 16.4142 3.58579C17.1953 4.36683 17.1953 5.63316 16.4142 6.41421L15.6213 7.20711L12.7929 4.37868L13.5858 3.58579Z"/>
@@ -29,8 +30,9 @@
 			</a-col>
 			<a-col :span="24" :md="12">
 				<a-card class="payment-method-card">
-					<img src="images/logos/visa-logo.png" alt="">
-					<h6 class="card-number">**** **** **** 3288</h6>
+					<!-- <img src="images/logos/visa-logo.png" alt=""> -->
+					<a-icon type="lock" :style="{fontSize: '32px'}" />
+					<h6 class="card-number">************</h6>
 					<a-button type="link">
 						<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 							<path class="fill-gray-7" d="M13.5858 3.58579C14.3668 2.80474 15.6332 2.80474 16.4142 3.58579C17.1953 4.36683 17.1953 5.63316 16.4142 6.41421L15.6213 7.20711L12.7929 4.37868L13.5858 3.58579Z"/>
@@ -39,6 +41,7 @@
 					</a-button>
 				</a-card>
 			</a-col>
+			
 		</a-row>
 	</a-card>
 	<!-- Payment Methods Card -->
@@ -46,11 +49,17 @@
 </template>
 
 <script>
-
+	import { jwtDecode } from 'jwt-decode';
 	export default ({
 		data() {
 			return {
 			}
+		},
+		computed: {
+			user: function(){
+				let token = localStorage.getItem('userToken')
+				return jwtDecode(token);
+			},
 		},
 	})
 

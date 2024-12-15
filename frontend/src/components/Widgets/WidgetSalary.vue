@@ -2,7 +2,7 @@
 
 	<!-- Salary Card -->
 	<a-card :bordered="false" class="widget-2 h-full">
-		<a-statistic :value="value" :prefix="prefix">
+		<a-statistic>
 			<template #title>
 				<div class="icon" v-html="icon"></div>
 				<h6>{{ title }}</h6>
@@ -11,7 +11,6 @@
 		</a-statistic>
 	</a-card>
 	<!-- / Salary Card -->
-
 </template>
 
 <script>

@@ -50,6 +50,7 @@ $routes->group('gender_analytics/api/v1', function($routes){
 		$routes->post('add/new', 'Analytics::addAnalyticsData');
 		$routes->get('get/list', 'Analytics::getAllAnalyticsData');
 		$routes->post('get/graph', 'Analytics::getGraphAnalytics');
+		$routes->post('get/graph/dashboard', 'Analytics::getGraphDashboardAnalytics');
 		$routes->post('get/graph/options', 'Analytics::getGraphAnalyticOptions');
 		$routes->post('get/dashboard', 'Analytics::getDashboard');
 	});
@@ -72,6 +73,7 @@ $routes->group('gender_analytics/api/v1', function($routes){
 		$routes->get('getUserTypes', 'Misc::getUserTypes');
 		$routes->get('getBranches', 'Misc::getBranches');
 		$routes->get('getAddress/(:any)', 'Misc::getAddress/$1');
+		$routes->post('database/backup', 'BackupController::backupDatabase');
 	});
 
 	

@@ -71,6 +71,14 @@
 						<span class="label">Events</span>
 					</router-link>
 				</a-menu-item>
+				<a-menu-item>
+					<router-link to="/settings">
+						<div class="icon" style="text-align: center;">
+							<a-icon type="setting" theme="filled" :style="{ fontSize: '18px', color: '#08c', marginLeft: '8px' }" />
+						</div>
+						<span class="label">Settings</span>
+					</router-link>
+				</a-menu-item>
 			</a-menu>
 			<!-- / Sidebar Navigation Menu -->
 

@@ -293,4 +293,61 @@ class Analytics extends BaseController
         
     }
 
+    public function getGraphDashboardAnalytics(){
+        //Get API Request Data from NuxtJs
+        $data = $this->request->getJSON();
+
+        $where = [
+            "yearFrom" => $data->from,
+            "yearTo" => $data->to,
+            "reportType" => $data->reportType,
+        ];
+
+        $query = $this->analyticsModel->getDashboardGraphAnalytics($where);
+        $list = [];
+
+        foreach ($query as $key => $value){
+            if($data->reportType === 'enrollment'){
+                $list[$value->yearFrom][$key] = (object)[
+                    (object)[
+                        "x" =>  "Male",
+                        "fillColor" =>  "#3b82f6",
+                        "y" =>  (int)$value->male,
+                    ],
+                    (object)[
+                        "x" =>  "Female",
+                        "fillColor" =>  "#f43f5e",
+                        "y" =>  (int)$value->female,
+                    ],
+                ];
+            } else if($data->reportType === 'graduate'){
+                $list[$value->yearFrom][$key] = (object)[
+                    "male" => (int)$value->male,
+                    "female" => (int)$value->female,
+                ];
+                // $list[$key]["male"] = (int)$value->male;
+                // $list[$key]["female"] = (int)$value->female;
+                // $list[$key]["categories"] = $value->yearFrom;
+            }
+        }
+
+        if($list){
+            return $this->response
+                    ->setStatusCode(200)
+                    ->setContentType('application/json')
+                    ->setBody(json_encode($list));
+        } else {
+            $response = [
+                'title' => 'Error',
+                'message' => 'No Data Found'
+            ];
+
+            return $this->response
+                    ->setStatusCode(400)
+                    ->setContentType('application/json')
+                    ->setBody(json_encode($response));
+        }
+        
+    }
+
 }
