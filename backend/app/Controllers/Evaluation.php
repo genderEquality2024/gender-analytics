@@ -51,7 +51,7 @@ class Evaluation extends BaseController
         //Get API Request Data from NuxtJs
         $data = $this->request->getJSON();
         
-        $query = $this->eventModel->where([
+        $query = $this->evalModel->where([
             "eventId" => $data->eventId
         ])->get()->getResult();
 
@@ -59,7 +59,16 @@ class Evaluation extends BaseController
 
         foreach ($query as $key => $value){
             $list[$key] = [
-                "order" => $value->order
+                "order" => $value->order,
+                "isCounted" => $value->isCounted,
+                "noScore" => $value->noScore,
+                "partlyScore" => $value->partlyScore,
+                "yesScore" => $value->yesScore,
+                "scoring" => $value->noScore .' / '. $value->partlyScore .' / '. $value->yesScore,
+                "scoringDesc" =>"No / Partly Yes / Yes",
+                "question" => $value->questionaire,
+                "responseCol" => "",
+                "remarks" => "",
             ];
         }
 

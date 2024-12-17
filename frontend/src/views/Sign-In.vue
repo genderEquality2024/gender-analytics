@@ -62,7 +62,7 @@
 </template>
 
 <script>
-
+	import { jwtDecode } from 'jwt-decode';
 	export default ({
 		data() {
 			return {
@@ -82,9 +82,14 @@
 					if ( !err ) {
 						this.$api.post("auth/login", values).then((res) => {
 							let response = {...res.data}
+							let jwtData = jwtDecode(response.jwt);
 							if(!response.error){
 								localStorage.setItem("userToken", response.jwt)
-								this.$router.push("/dashboard")
+								if(jwtData.aud === 'admin'){
+									this.$router.push("/dashboard")
+								} else {
+									this.$router.push("/evaluation")
+								}
 							} else {
 							// show Error
 							}

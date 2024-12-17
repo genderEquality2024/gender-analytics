@@ -1,0 +1,453 @@
+<!-- 
+	This is the user profile page, it uses the dashboard layout in: 
+	"./layouts/Dashboard.vue" .
+ -->
+
+ <template>
+	<div>
+
+		<!-- Header Background Image -->
+		<div class="profile-nav-bg" style="background-image: url('images/bg-profile.jpg')"></div>
+		<!-- / Header Background Image -->
+
+		<!-- User Profile Card -->
+		<a-card :bordered="false" class="card-profile-head" :bodyStyle="{padding: 0,}">
+			<template #title>
+				<a-row type="flex" align="middle">
+					<a-col :span="24" :md="12" class="col-info">
+						<a-avatar 
+							shape="square" 
+							:size="74" 
+							icon="calendar" 
+							:style="{ backgroundColor: 'orange' }"
+						/>
+						<div class="avatar-info">
+							<h4 class="font-semibold m-0">SELECTED EVENT: </h4>
+							<p>List of Event and Evaluation</p>
+						</div>
+					</a-col>
+					<a-col :span="24" :md="12" style="display: flex; align-items: center; justify-content: flex-end">
+						<!-- <a-button @click="addUSerModal = true" type="primary">Add Event</a-button> -->
+                        <!-- <a-button type="link">
+                                <svg width="15" height="15" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M3 17C3 16.4477 3.44772 16 4 16H16C16.5523 16 17 16.4477 17 17C17 17.5523 16.5523 18 16 18H4C3.44772 18 3 17.5523 3 17ZM6.29289 9.29289C6.68342 8.90237 7.31658 8.90237 7.70711 9.29289L9 10.5858L9 3C9 2.44772 9.44771 2 10 2C10.5523 2 11 2.44771 11 3L11 10.5858L12.2929 9.29289C12.6834 8.90237 13.3166 8.90237 13.7071 9.29289C14.0976 9.68342 14.0976 10.3166 13.7071 10.7071L10.7071 13.7071C10.5196 13.8946 10.2652 14 10 14C9.73478 14 9.48043 13.8946 9.29289 13.7071L6.29289 10.7071C5.90237 10.3166 5.90237 9.68342 6.29289 9.29289Z" fill="#111827"/>
+                                </svg>
+                            Evaluation Questionaire Template
+                        </a-button> -->
+					</a-col>
+				</a-row>
+			</template>
+		</a-card>
+		<!-- User Profile Card -->
+
+		<a-row type="flex" :gutter="24">
+
+			<!-- Calendar Settings Column -->
+			<a-col :span="24" :md="24" class="mb-24">
+				<a-card :bordered="false" class="header-solid h-full" :bodyStyle="{paddingTop: 0, paddingBottom: 0 }">
+					<!-- <template #title>
+						<h6 class="font-semibold m-0">Event Calendar</h6>
+					</template> -->
+					<a-calendar v-if="eventList.length > 0" @select="getEventDetails" @panelChange="onPanelChange">
+						<ul slot="dateCellRender" slot-scope="value" class="events">
+							<li v-for="item in getListData(value)" :key="item.id">
+								{{ item.title }}
+							</li>
+						</ul>
+					</a-calendar>
+			
+				</a-card>
+				
+			</a-col>
+			
+
+		</a-row>
+
+		<a-modal
+			v-model="addUSerModal"
+			title="Event Details"
+			centered
+		>
+			<template slot="footer">
+                
+				<a-button key="submit" type="primary" :loading="loading" @click="addToEvent">
+					Submit Answer
+				</a-button>
+			</template>
+
+			<a-form :label-col="{ span: 24 }" :wrapper-col="{ span: 24 }">
+				<a-row :gutter="24">
+					<a-col :span="24" :sm="12">
+						<a-form-item label="Title">
+							<a-input
+								v-model="form.title"
+							/>
+						</a-form-item>
+					</a-col>
+					<a-col :span="24" :sm="12">
+						<a-form-item label="Code">
+							<a-input
+								v-model="form.eventCode"
+							/>
+						</a-form-item>
+					</a-col>
+					<a-col :span="24" :sm="24">
+						<a-form-item label="Decription">
+							<a-input
+								type="textarea"
+								v-model="form.description"
+							/>
+						</a-form-item>
+					</a-col>
+					<a-col :span="24" :sm="24">
+						<a-form-item label="Event Date">
+							<a-range-picker @change="onChange" />
+						</a-form-item>
+					</a-col>
+				</a-row>
+			</a-form>
+		</a-modal>
+
+		<a-modal
+			v-if="eventDetails !== null"
+			v-model="eventDetailsModal"
+			:title="eventDetails.title"
+			centered
+		>	
+			<template slot="footer">
+                <a-button @click="downloadQuestions" type="link">
+                    <svg width="15" height="15" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M3 17C3 16.4477 3.44772 16 4 16H16C16.5523 16 17 16.4477 17 17C17 17.5523 16.5523 18 16 18H4C3.44772 18 3 17.5523 3 17ZM6.29289 9.29289C6.68342 8.90237 7.31658 8.90237 7.70711 9.29289L9 10.5858L9 3C9 2.44772 9.44771 2 10 2C10.5523 2 11 2.44771 11 3L11 10.5858L12.2929 9.29289C12.6834 8.90237 13.3166 8.90237 13.7071 9.29289C14.0976 9.68342 14.0976 10.3166 13.7071 10.7071L10.7071 13.7071C10.5196 13.8946 10.2652 14 10 14C9.73478 14 9.48043 13.8946 9.29289 13.7071L6.29289 10.7071C5.90237 10.3166 5.90237 9.68342 6.29289 9.29289Z" fill="#111827"/>
+                    </svg>
+                    Download Questionaire
+                </a-button>
+				<a-button
+					type="primary"
+					:disabled="csvData.length === 0"
+					:loading="uploading"
+					style="margin-top: 16px"
+					@click="uploadCSVData(csvData)"
+				>
+						{{ uploading ? 'Uploading' : 'Submit Answer' }}
+				</a-button>
+			</template>
+			<a-row :gutter="24">
+				<a-col :span="24" :sm="24">
+					<a-alert
+                        message="Informational Notes"
+                        description="Download the questionaires and upload it once done to submit your response"
+                        type="info"
+                        show-icon
+                    />
+				</a-col>
+                <a-col :span="24" :sm="24">
+					<a-form-item label="Upload Response">
+						<a-upload :file-list="fileList" :remove="handleRemove" :before-upload="beforeUpload">
+							<a-button> <a-icon type="upload" /> Select File </a-button>
+						</a-upload>
+						
+					</a-form-item>
+				</a-col>
+			</a-row>
+		</a-modal>
+	</div>
+</template>
+
+<script>
+	import { jwtDecode } from 'jwt-decode';
+	import * as d3 from "d3"
+	import moment from 'moment'
+	export default ({
+		data() {
+			return {
+				addUSerModal: false,
+				eventDetailsModal: false,
+				eventDetails: null,
+				form:{
+					title: "",
+					description: "",
+					month: "",
+					eventDate: "",
+					eventCode: ""
+				},
+				rangeDate: [],
+				csvData: [],
+				uploading: false,
+				eventList: [],
+				currMonth: moment().format("M"),
+				currYear: moment().format("YYYY"),
+				eventTypes: [
+					{
+						label: "Enrollment",
+						value: "enrollment",
+					},
+					{
+						label: "Graduates",
+						value: "graduate",
+					},
+					{
+						label: "Employment",
+						value: "employee",
+					},
+				],
+			}
+		},
+		computed:{
+			user: function(){
+				let token = localStorage.getItem('userToken')
+				return jwtDecode(token);
+			},
+		},
+		created(){
+			this.getList();
+		},
+		methods:{
+			moment,
+			onChange(date, dateString) {
+				this.rangeDate = dateString
+			},
+			async addToEvent(){
+				var start = moment(this.rangeDate[0], "YYYY-MM-DD");
+				var end = moment(this.rangeDate[1], "YYYY-MM-DD");
+				let daysDiff = moment.duration(end.diff(start)).asDays();
+
+
+				for (let index = 0; index <= daysDiff; index++) {
+					let evntMonth = moment(this.rangeDate[0]).add(index, 'd').format('M')
+					let evntDay = moment(this.rangeDate[0]).add(index, 'd').format('DD')
+					let evntDate = moment(this.rangeDate[0]).add(index, 'd').format('YYYY-MM-DD')
+					
+					let payload = {
+						...this.form,
+						month: evntMonth,
+						days: evntDay,
+						eventDate: evntDate
+					}
+					this.$api.post("events/add", payload).then((res) => {
+						let response = {...res.data}
+						if(!response.error){
+							console.log('data uploaded')
+						} else {
+							// show Error
+							console.log('there is some error')
+						}
+					})
+				}
+
+				this.getList()
+				this.addUSerModal = false
+				this.form = {
+					title: "",
+					description: "",
+					month: "",
+					eventDate: "",
+					eventCode: ""
+				}
+
+			},
+			async getList(month = moment().format("M"), year = moment().format("YYYY")){
+				let payload = {
+					month,
+					year
+				}
+				this.$api.post("events/list", payload).then((res) => {
+					let response = {...res.data}
+					if(!response.error){
+						this.eventList = res.data
+					} else {
+						// show Error
+						console.log('there is some error')
+					}
+				})
+			},
+			async downloadQuestions(){
+				let payload = {
+					eventId: this.eventDetails.eventCode
+				}
+				this.$api.post("evaluation/get/questions", payload).then((res) => {
+					let response = {...res.data}
+					if(!response.error){
+                        let row = res.data
+                        let columns = [
+                            'order',
+                            'scoring',
+                            'scoringDesc',
+                            'question',
+                            'responseCol',
+                            'remarks',
+                        ]
+                        const content = [columns.map(col => this.wrapCsvValue(col))].concat(
+                            row.map(row => columns.map(col => this.wrapCsvValue(
+                                row[col],
+                                col.format,
+                                row
+                            )).join(','))
+                        ).join('\n')
+
+
+
+                        const anchor = document.createElement('a');
+                        anchor.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(content);
+                        anchor.target = '_blank';
+                        anchor.download = `${this.eventDetails.title}_Questionaire.csv`;
+                        anchor.click();
+					} else {
+						// show Error
+						console.log('there is some error')
+					}
+				})
+			},
+            wrapCsvValue (val, formatFn, row) {
+                let formatted = formatFn !== void 0
+                    ? formatFn(val, row)
+                    : val
+
+                formatted = formatted === void 0 || formatted === null
+                    ? ''
+                    : String(formatted)
+
+                formatted = formatted.split('"').join('""')
+                /**
+                 * Excel accepts \n and \r in strings, but some other CSV parsers do not
+                 * Uncomment the next two lines to escape new lines
+                 */
+                // .split('\n').join('\\n')
+                // .split('\r').join('\\r')
+
+                return `"${formatted}"`
+            },
+			getListData(value) {
+				let listData;
+				let day = value.date();
+				listData = this.eventList.filter(el =>
+				 	Number(el.days) === day && 
+					Number(el.month) === Number(this.currMonth) &&
+					Number(el.year) === Number(this.currYear)
+				)
+				return listData || [];
+			},
+			onPanelChange(value, mode){
+				this.currMonth = value.format('M')
+				this.currYear = value.format('YYYY')
+				this.getList(value.format('M'), value.format('YYYY'))
+			},
+			getEventDetails(value){
+				let day = value.date();
+				let data = this.eventList.filter(el =>
+				 	Number(el.days) === day && 
+					Number(el.month) === Number(this.currMonth) &&
+					Number(el.year) === Number(this.currYear)
+				)
+
+				this.eventDetails = data.length > 0 ? data[0] : null
+				this.eventDetailsModal = true
+			},
+
+			handleRemove(file) {
+				this.csvData = [];
+			},
+			async beforeUpload(file) {
+				var reader = new FileReader();
+				reader.readAsText(new Blob(
+					[file],
+					{"type": file.type}
+				))
+				const fileContent = await new Promise(resolve => {
+					reader.onloadend = (event) => {
+						resolve(event.target.result)
+					}
+				})
+				let csvData = d3.csvParse(fileContent)
+				
+                
+                let payload = {
+					eventId: this.eventDetails.eventCode
+				}
+				this.$api.post("evaluation/get/questions", payload).then((res) => {
+					let response = {...res.data}
+					if(!response.error){
+                        let listData = res.data
+                        for(const i in csvData){
+                            if(listData[i] !== undefined){
+                                let scoreKey = {
+                                    "no": "noScore",
+                                    "partly": "partlyScore",
+                                    "yes": "yesScore",
+                                }
+                                if(listData[i].isCounted === 'yes'){
+                                    csvData[i].scoreCol = listData[i][scoreKey[csvData[i].responseCol]]
+                                }
+
+                                console.log(listData[i])
+                            }
+                        }
+					} else {
+						// show Error
+						console.log('there is some error')
+					}
+				})
+                console.log(csvData)
+				// this.csvData = csvData
+				return false;
+			},
+			handleChange(info) {
+				console.log(info.file.status)
+				if (info.file.status !== 'uploading') {
+					console.log(info.file, info.fileList);
+				}
+				if (info.file.status === 'done') {
+					this.$message.success(`${info.file.name} file uploaded successfully`);
+				} else if (info.file.status === 'error') {
+					this.$message.error(`${info.file.name} file upload failed.`);
+				}
+			},
+			async uploadCSVData(data){
+				this.uploading = true
+				data = data.map((el) => {
+					return {
+						...el,
+						eventId: this.eventDetails.eventCode,
+						createdBy: Number(this.user.userId)
+					}
+				})
+
+				const dataUploaded = await new Promise((resolve, reject) => {
+					let uploaded = 0
+					data.forEach(el => {
+						this.$api.post("evaluation/create/content", el).then((res) => {
+							let response = {...res.data}
+							if(!response.error){
+							console.log('data uploaded')
+							} else {
+							// show Error
+							console.log('there is some error')
+							}
+						})
+						uploaded += 1
+					});
+
+					if(uploaded === data.length){
+						this.$message.success(`File uploaded successfully`);
+						resolve({
+							message: 'Upload complete'
+						})
+					} else {
+					reject()
+					}
+				})
+			
+				this.getList();
+				this.csvData = []
+				this.eventDetails = null
+				this.eventDetailsModal = false
+				this.uploading = false
+			
+			},
+			
+		}
+	})
+
+</script>
+
+<style lang="scss">
+</style>

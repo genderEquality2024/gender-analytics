@@ -74,7 +74,7 @@
 </template>
 
 <script>
-
+	import { jwtDecode } from 'jwt-decode';
 	import DashboardSidebar from '../components/Sidebars/DashboardSidebar' ;
 	import DashboardHeader from '../components/Headers/DashboardHeader' ;
 	import DashboardFooter from '../components/Footers/DashboardFooter' ;
@@ -89,8 +89,14 @@
 		},
 		created(){
 			let token = localStorage.getItem('userToken')
+			
 			if(token){
-				this.$router.push("/dashboard")
+				let jwtData = jwtDecode(token);
+				if(jwtData.aud === 'admin'){
+					this.$router.push("/dashboard")
+				} else {
+					this.$router.push("/evaluation")
+				}
 			} else {
 				this.$router.push("/")
 			}

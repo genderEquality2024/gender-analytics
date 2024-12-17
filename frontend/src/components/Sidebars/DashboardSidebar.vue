@@ -22,7 +22,7 @@
 			<hr>
 
 			<!-- Sidebar Navigation Menu -->
-			<a-menu theme="light" mode="inline">
+			<a-menu v-if="user.aud === 'admin'" theme="light" mode="inline">
 				<a-menu-item>
 					<router-link to="/dashboard">
 						<div class="icon" style="text-align: center;">
@@ -80,6 +80,16 @@
 					</router-link>
 				</a-menu-item>
 			</a-menu>
+			<a-menu v-else theme="light" mode="inline">
+				<a-menu-item>
+					<router-link to="/evaluate">
+						<div class="icon" style="text-align: center;">
+							<a-icon type="dashboard" :style="{ fontSize: '18px', color: '#08c', marginLeft: '8px' }" />
+						</div>
+						<span class="label">Dashboard</span>
+					</router-link>
+				</a-menu-item>
+			</a-menu>
 			<!-- / Sidebar Navigation Menu -->
 
 			
@@ -89,6 +99,7 @@
 </template>
 
 <script>
+	import { jwtDecode } from 'jwt-decode';
 
 	export default ({
 		props: {
@@ -109,6 +120,15 @@
 				type: String,
 				default: "light",
 			},
+		},
+		computed:{
+			user: function(){
+				let token = localStorage.getItem('userToken')
+				return jwtDecode(token);
+			},
+		},
+		created(){
+			console.log(this.user)
 		},
 		data() {
 			return {

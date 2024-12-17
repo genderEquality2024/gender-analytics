@@ -59,6 +59,12 @@ let routes = [
 		layout: "dashboard",
 		component: () => import('../views/Settings.vue'),
 	},
+	{
+		path: '/evaluation',
+		name: 'Evaluation',
+		layout: "dashboard",
+		component: () => import('../views/Evaluation.vue'),
+	},
 
 
 	{
