@@ -14,6 +14,7 @@ class Events extends BaseController
     public function addEventCalendar(){
         //Get API Request Data from NuxtJs
         $data = $this->request->getJSON();
+        $data->eventDate = json_encode($data->eventDate);
         $data = json_decode(json_encode($data), true);
         
         $query = $this->eventModel->insert($data);
@@ -44,6 +45,40 @@ class Events extends BaseController
         }
         // print_r($data);
         // exit();
+        
+    }
+
+    public function getListEvents(){
+        //Get API Request Data from NuxtJs
+        $data = $this->request->getJSON();
+        
+        $query = $this->eventModel->where([
+            "month" => $data->month,
+            "year" => $data->year,
+        ])->get()->getResult();
+
+        $list = [];
+
+        foreach ($query as $key => $value){
+            $list[$key] = $value;
+        }
+
+        if($list){
+            return $this->response
+                    ->setStatusCode(200)
+                    ->setContentType('application/json')
+                    ->setBody(json_encode($list));
+        } else {
+            $response = [
+                'title' => 'Error',
+                'message' => 'No Data Found'
+            ];
+
+            return $this->response
+                    ->setStatusCode(400)
+                    ->setContentType('application/json')
+                    ->setBody(json_encode($response));
+        }
         
     }
 

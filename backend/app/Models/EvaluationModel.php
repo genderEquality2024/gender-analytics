@@ -16,11 +16,16 @@ class EvaluationModel extends Model
     protected $useSoftDeletes = false;
 
     protected $allowedFields = [
+        'order', 
+        'title', 
         'questionaire', 
-        'maxPoints', 
+        'noScore', 
+        'partlyScore', 
+        'yesScore', 
         'toolTip', 
         'eventId', 
-        'createdBy'
+        'createdBy',
+        'isCounted'
     ];
 
     protected $useTimestamps = false;

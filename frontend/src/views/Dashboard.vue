@@ -285,8 +285,6 @@
 							female: [],
 						}
 						let groups = []
-						let maleSeries = []
-						let femaleSeries = []
 
 						if(typeof res.data === "object"){
 							for (const el in res.data) {
@@ -302,25 +300,15 @@
 							let totalMale = 0
 							let totalFemale = 0
 							if(typeof el === "object"){
-								console.log('obj', el)
 								for (const i in el) {
 									totalMale += el[i].male
 									totalFemale += el[i].female
 								}
-							} else {
-								console.log('arr', el)
 							}
 
 							series.male.push(totalMale)
 							series.female.push(totalFemale)
 						});
-						// for(const i in res.data){
-						// 	maleSeries.push(res.data[i].male)
-						// 	femaleSeries.push(res.data[i].female)
-						// 	groups.push(res.data[i].categories)
-						// }
-						// series.male = maleSeries
-						// series.female = femaleSeries
 
 						this.seriesDataGrad = series
                 		this.groupDataGrad = groups

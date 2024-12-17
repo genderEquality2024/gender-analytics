@@ -63,10 +63,11 @@ $routes->group('gender_analytics/api/v1', function($routes){
 
 	$routes->group('events', function($routes){
 		$routes->post('add', 'Events::addEventCalendar');
+		$routes->post('list', 'Events::getListEvents');
 	});
 
 	$routes->group('evaluation', function($routes){
-		$routes->post('create/content', 'Evaluation::addDocumentContent');
+		$routes->post('create/content', 'Evaluation::addEventQuestionaire');
 	});
 
 	$routes->group('misc', function($routes){

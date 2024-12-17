@@ -15,6 +15,7 @@ class BackupController extends BaseController
 
     public function backupDatabase(){
         //Get API Request Data from NuxtJs
+        db_connect();
         $dbutil = \Config\Database::utils();
         $prefs = array(
             'tables'        => array('tbluser'),   // Array of tables to backup.
@@ -28,6 +29,10 @@ class BackupController extends BaseController
         $dbname = 'backup-on-' . date('Y-m-d') . '.txt';
         $backup = $dbutil->backup($prefs);
         force_download($dbname, $backup);
+
+
+
+        
         // $data = $this->request->getJSON(); 
         // $hasPass = sha1($data->password);
 

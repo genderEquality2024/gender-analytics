@@ -15,18 +15,19 @@
 			<template #title>
 				<a-row type="flex" align="middle">
 					<a-col :span="24" :md="12" class="col-info">
-						<a-avatar :size="74" shape="square" src="images/face-1.jpg" />
+						<a-avatar 
+							shape="square" 
+							:size="74" 
+							icon="calendar" 
+							:style="{ backgroundColor: 'orange' }"
+						/>
 						<div class="avatar-info">
-							<h4 class="font-semibold m-0">Sarah Jacob</h4>
-							<p>CEO / Co-Founder</p>
+							<h4 class="font-semibold m-0">EVENTS</h4>
+							<p>List of Event and Evaluation</p>
 						</div>
 					</a-col>
 					<a-col :span="24" :md="12" style="display: flex; align-items: center; justify-content: flex-end">
-						<a-radio-group v-model="profileHeaderBtns" size="small">
-							<a-radio-button value="overview">OVERVIEW</a-radio-button>
-							<a-radio-button value="teams">TEAMS</a-radio-button>
-							<a-radio-button value="projects">PROJECTS</a-radio-button>
-						</a-radio-group>
+						<a-button @click="addUSerModal = true" type="primary">Add Event</a-button>
 					</a-col>
 				</a-row>
 			</template>
@@ -35,195 +36,316 @@
 
 		<a-row type="flex" :gutter="24">
 
-			<!-- Platform Settings Column -->
-			<a-col :span="24" :md="8" class="mb-24">
-
-				<!-- Platform Settings Card -->
-				<CardPlatformSettings></CardPlatformSettings>
-				<!-- / Platform Settings Card -->
-
-			</a-col>
-			<!-- / Platform Settings Column -->
-
-			<!-- Profile Information Column -->
-			<a-col :span="24" :md="8" class="mb-24">
-
-				<!-- Profile Information Card -->
-				<CardProfileInformation></CardProfileInformation>
-				<!-- / Profile Information Card -->
-
-			</a-col>
-			<!-- / Profile Information Column -->
+			<!-- Calendar Settings Column -->
+			<a-col :span="24" :md="24" class="mb-24">
+				<a-card :bordered="false" class="header-solid h-full" :bodyStyle="{paddingTop: 0, paddingBottom: 0 }">
+					<!-- <template #title>
+						<h6 class="font-semibold m-0">Event Calendar</h6>
+					</template> -->
+					<a-calendar v-if="eventList.length > 0" @select="getEventDetails" @panelChange="onPanelChange">
+						<ul slot="dateCellRender" slot-scope="value" class="events">
+							<li v-for="item in getListData(value)" :key="item.id">
+								{{ item.title }}
+							</li>
+						</ul>
+					</a-calendar>
 			
-			<!-- Conversations Column -->
-			<a-col :span="24" :md="8" class="mb-24">
-			
-				<!-- Conversations Card -->
-				<CardConversations
-					:data="conversationsData"
-				></CardConversations>
-				<!-- / Conversations Card -->
-
+				</a-card>
+				
 			</a-col>
-			<!-- / Conversations Column -->
+			
 
 		</a-row>
-		
-		<!-- Projects Card -->
-		<a-card :bordered="false" class="header-solid h-full mb-24" :bodyStyle="{paddingTop: '14px'}">
-			<template #title>
-				<h6 class="font-semibold">Projects</h6>			
-				<p>Architects design houses</p>	
+
+		<a-modal
+			v-model="addUSerModal"
+			title="Event Details"
+			centered
+		>
+			<template slot="footer">
+				<a-button key="submit" type="primary" :loading="loading" @click="addToEvent">
+					Submit
+				</a-button>
 			</template>
 
-			<a-row type="flex" :gutter="[24,24]" align="stretch">
+			<a-form :label-col="{ span: 24 }" :wrapper-col="{ span: 24 }">
+				<a-row :gutter="24">
+					<a-col :span="24" :sm="12">
+						<a-form-item label="Title">
+							<a-input
+								v-model="form.title"
+							/>
+						</a-form-item>
+					</a-col>
+					<a-col :span="24" :sm="12">
+						<a-form-item label="Code">
+							<a-input
+								v-model="form.eventCode"
+							/>
+						</a-form-item>
+					</a-col>
+					<a-col :span="24" :sm="24">
+						<a-form-item label="Decription">
+							<a-input
+								type="textarea"
+								v-model="form.description"
+							/>
+						</a-form-item>
+					</a-col>
+					<a-col :span="24" :sm="24">
+						<a-form-item label="Event Date">
+							<a-range-picker @change="onChange" />
+						</a-form-item>
+					</a-col>
+				</a-row>
+			</a-form>
+		</a-modal>
 
-				<!-- Project Column -->
-				<a-col :span="24" :md="12" :xl="6" v-for="(project, index) in projects" :key="index">
-					<CardProject
-						:id="project.id"
-						:title="project.title"
-						:content="project.content"
-						:cover="project.cover"
-						:team="project.team"
-					></CardProject>
+		<a-modal
+			v-if="eventDetails !== null"
+			v-model="eventDetailsModal"
+			:title="eventDetails.title"
+			centered
+		>	
+			<template slot="footer">
+				<a-button
+					type="primary"
+					:disabled="csvData.length === 0"
+					:loading="uploading"
+					style="margin-top: 16px"
+					@click="uploadCSVData(csvData)"
+				>
+						{{ uploading ? 'Uploading' : 'Start Upload' }}
+				</a-button>
+			</template>
+			<a-row :gutter="24">
+				<a-col :span="24" :sm="24">
+					<a-form-item label="Description">
+						<span>{{ eventDetails.description }}</span>
+					</a-form-item>
 				</a-col>
-				<!-- / Project Column -->
-
-				<!-- Project Column -->
-				<a-col :span="24" :md="12" :xl="6">
-
-					<!-- Project Upload Component -->
-					<a-upload
-						name="avatar"
-						list-type="picture-card"
-						class="projects-uploader"
-						:show-upload-list="false"
-					>
-						<img v-if="false" src="" alt="avatar" />
-						<div v-else>
-							<a-icon v-if="false" type="loading" />
-							<svg v-else width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path fill-rule="evenodd" clip-rule="evenodd" d="M3 17C3 16.4477 3.44772 16 4 16H16C16.5523 16 17 16.4477 17 17C17 17.5523 16.5523 18 16 18H4C3.44772 18 3 17.5523 3 17ZM6.29289 6.70711C5.90237 6.31658 5.90237 5.68342 6.29289 5.29289L9.29289 2.29289C9.48043 2.10536 9.73478 2 10 2C10.2652 2 10.5196 2.10536 10.7071 2.29289L13.7071 5.29289C14.0976 5.68342 14.0976 6.31658 13.7071 6.70711C13.3166 7.09763 12.6834 7.09763 12.2929 6.70711L11 5.41421L11 13C11 13.5523 10.5523 14 10 14C9.44771 14 9 13.5523 9 13L9 5.41421L7.70711 6.70711C7.31658 7.09763 6.68342 7.09763 6.29289 6.70711Z" fill="#111827"/>
-							</svg>
-
-							<div class="ant-upload-text font-semibold text-dark">
-								Upload New Project
-							</div>
-						</div>
-					</a-upload>
-					<!-- / Project Upload Component -->
-
+				<a-col :span="24" :sm="24">
+					<a-form-item label="Upload Questionaires">
+						<a-upload :file-list="fileList" :remove="handleRemove" :before-upload="beforeUpload">
+							<a-button> <a-icon type="upload" /> Select File </a-button>
+						</a-upload>
+						
+					</a-form-item>
 				</a-col>
-				<!-- / Project Column -->
-
 			</a-row>
-		</a-card>
-		<!-- / Projects Card -->
-
+		</a-modal>
 	</div>
 </template>
 
 <script>
-
-	import CardPlatformSettings from "../components/Cards/CardPlatformSettings"
-	import CardProfileInformation from "../components/Cards/CardProfileInformation"
-	import CardConversations from "../components/Cards/CardConversations"
-	import CardProject from "../components/Cards/CardProject"
-
-	// Conversation's list data.
-	const conversationsData = [
-		{
-			id: "1",
-			title: "Sophie B.",
-			code: "Hi! I need more information…",
-			avatar: "images/face-3.jpg",
-		},
-		{
-			id: "2",
-			title: "Anne Marie",
-			code: "Awesome work, can you…",
-			avatar: "images/face-4.jpg",
-		},
-		{
-			id: "3",
-			title: "Ivan",
-			code: "About files I can…",
-			avatar: "images/face-5.jpeg",
-		},
-		{
-			id: "4",
-			title: "Peterson",
-			code: "Have a great afternoon…",
-			avatar: "images/face-6.jpeg",
-		},
-		{
-			id: "5",
-			title: "Nick Daniel",
-			code: "Hi! I need more information…",
-			avatar: "images/face-2.jpg",
-		},
-	] ;
-
-	// Project cards data
-	const projects = [
-		{
-			id: 1,
-			title: "Modern",
-			content: "As Uber works through a huge amount of internal management turmoil.",
-			cover: "images/home-decor-3.jpeg",
-			team: [
-				"images/face-1.jpg",
-				"images/face-4.jpg",
-				"images/face-2.jpg",
-				"images/face-3.jpg",
-			],
-		},
-		{
-			id: 2,
-			title: "Scandinavian",
-			content: "Music is something that every person has his or her own specific opinion about.",
-			cover: "images/home-decor-2.jpeg",
-			team: [
-				"images/face-1.jpg",
-				"images/face-4.jpg",
-				"images/face-2.jpg",
-				"images/face-3.jpg",
-			],
-		},
-		{
-			id: 3,
-			title: "Minimalist",
-			content: "Different people have different taste, and various types of music, Zimbali Resort.",
-			cover: "images/home-decor-1.jpeg",
-			team: [
-				"images/face-1.jpg",
-				"images/face-4.jpg",
-				"images/face-2.jpg",
-				"images/face-3.jpg",
-			],
-		},
-	] ;
-
+	import { jwtDecode } from 'jwt-decode';
+	import * as d3 from "d3"
+	import moment from 'moment'
 	export default ({
-		components: {
-			CardPlatformSettings,
-			CardProfileInformation,
-			CardConversations,
-			CardProject,
-		},
 		data() {
 			return {
-				// Active button for the "User Profile" card's radio button group.
-				profileHeaderBtns: 'overview',
-
-				// Associating Conversation's list data with its corresponding property.
-				conversationsData,
-
-				// Project cards data
-				projects,
+				addUSerModal: false,
+				eventDetailsModal: false,
+				eventDetails: null,
+				form:{
+					title: "",
+					description: "",
+					month: "",
+					eventDate: "",
+					eventCode: ""
+				},
+				rangeDate: [],
+				csvData: [],
+				uploading: false,
+				eventList: [],
+				currMonth: moment().format("M"),
+				currYear: moment().format("YYYY"),
+				eventTypes: [
+					{
+						label: "Enrollment",
+						value: "enrollment",
+					},
+					{
+						label: "Graduates",
+						value: "graduate",
+					},
+					{
+						label: "Employment",
+						value: "employee",
+					},
+				],
 			}
 		},
+		computed:{
+			user: function(){
+				let token = localStorage.getItem('userToken')
+				return jwtDecode(token);
+			},
+		},
+		created(){
+			this.getList();
+		},
+		methods:{
+			moment,
+			onChange(date, dateString) {
+				this.rangeDate = dateString
+			},
+			async addToEvent(){
+				var start = moment(this.rangeDate[0], "YYYY-MM-DD");
+				var end = moment(this.rangeDate[1], "YYYY-MM-DD");
+				let daysDiff = moment.duration(end.diff(start)).asDays();
+
+
+				for (let index = 0; index <= daysDiff; index++) {
+					let evntMonth = moment(this.rangeDate[0]).add(index, 'd').format('M')
+					let evntDay = moment(this.rangeDate[0]).add(index, 'd').format('DD')
+					let evntDate = moment(this.rangeDate[0]).add(index, 'd').format('YYYY-MM-DD')
+					
+					let payload = {
+						...this.form,
+						month: evntMonth,
+						days: evntDay,
+						eventDate: evntDate
+					}
+					this.$api.post("events/add", payload).then((res) => {
+						let response = {...res.data}
+						if(!response.error){
+							console.log('data uploaded')
+						} else {
+							// show Error
+							console.log('there is some error')
+						}
+					})
+				}
+
+				this.getList()
+				this.addUSerModal = false
+				this.form = {
+					title: "",
+					description: "",
+					month: "",
+					eventDate: "",
+					eventCode: ""
+				}
+
+			},
+			async getList(month = moment().format("M"), year = moment().format("YYYY")){
+				let payload = {
+					month,
+					year
+				}
+				this.$api.post("events/list", payload).then((res) => {
+					let response = {...res.data}
+					if(!response.error){
+						this.eventList = res.data
+					} else {
+						// show Error
+						console.log('there is some error')
+					}
+				})
+			},
+			getListData(value) {
+				let listData;
+				let day = value.date();
+				listData = this.eventList.filter(el =>
+				 	Number(el.days) === day && 
+					Number(el.month) === Number(this.currMonth) &&
+					Number(el.year) === Number(this.currYear)
+				)
+				return listData || [];
+			},
+			onPanelChange(value, mode){
+				this.currMonth = value.format('M')
+				this.currYear = value.format('YYYY')
+				this.getList(value.format('M'), value.format('YYYY'))
+			},
+			getEventDetails(value){
+				let day = value.date();
+				let data = this.eventList.filter(el =>
+				 	Number(el.days) === day && 
+					Number(el.month) === Number(this.currMonth) &&
+					Number(el.year) === Number(this.currYear)
+				)
+
+				this.eventDetails = data.length > 0 ? data[0] : null
+				this.eventDetailsModal = true
+			},
+
+			handleRemove(file) {
+				this.csvData = [];
+			},
+			async beforeUpload(file) {
+				var reader = new FileReader();
+				reader.readAsText(new Blob(
+					[file],
+					{"type": file.type}
+				))
+				const fileContent = await new Promise(resolve => {
+					reader.onloadend = (event) => {
+						resolve(event.target.result)
+					}
+				})
+				let csvData = d3.csvParse(fileContent)
+				
+
+				this.csvData = csvData
+				return false;
+			},
+			handleChange(info) {
+				console.log(info.file.status)
+				if (info.file.status !== 'uploading') {
+					console.log(info.file, info.fileList);
+				}
+				if (info.file.status === 'done') {
+					this.$message.success(`${info.file.name} file uploaded successfully`);
+				} else if (info.file.status === 'error') {
+					this.$message.error(`${info.file.name} file upload failed.`);
+				}
+			},
+			async uploadCSVData(data){
+				this.uploading = true
+				data = data.map((el) => {
+					return {
+						...el,
+						eventId: this.eventDetails.eventCode,
+						createdBy: Number(this.user.userId)
+					}
+				})
+
+				const dataUploaded = await new Promise((resolve, reject) => {
+					let uploaded = 0
+					data.forEach(el => {
+						this.$api.post("evaluation/create/content", el).then((res) => {
+							let response = {...res.data}
+							if(!response.error){
+							console.log('data uploaded')
+							} else {
+							// show Error
+							console.log('there is some error')
+							}
+						})
+						uploaded += 1
+					});
+
+					if(uploaded === data.length){
+						this.$message.success(`File uploaded successfully`);
+						resolve({
+							message: 'Upload complete'
+						})
+					} else {
+					reject()
+					}
+				})
+			
+				this.getList();
+				this.csvData = []
+				this.eventDetails = null
+				this.eventDetailsModal = false
+				this.uploading = false
+			
+			},
+			
+		}
 	})
 
 </script>

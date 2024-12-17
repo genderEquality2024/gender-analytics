@@ -16,10 +16,12 @@ class EventModel extends Model
 
     protected $allowedFields = [
         'title', 
-        'eventType', 
+        'description', 
+        'eventCode', 
         'eventDate', 
-        'fileUploaded', 
-        'location', 
+        'month',
+        'days',
+        'year',
         'createdBy'
     ];
 
