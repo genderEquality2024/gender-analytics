@@ -16,15 +16,54 @@ class Analytics extends BaseController
     public function addAnalyticsData(){
         //Get API Request Data from NuxtJs
         $data = $this->request->getJSON();
-        $data = json_decode(json_encode($data), true);
+
+        // Check if there was existing Year Data and Department
+        foreach ($data->csv as $key => $value){
+            $check = $this->analyticsModel->where([
+                "yearFrom"=>$value->yearFrom,
+                "term"=>$value->term,
+                "course"=>$value->course,
+                "reportType"=>$value->reportType,
+            ])->get()->getRow();
+            
+
+            if(!$check){
+                $payload = json_decode(json_encode($value), true);
+                $this->analyticsModel->insert($payload);
+            }
+            
+        }
         
-        $query = $this->analyticsModel->insert($data);
+        $response = [
+            'title' => 'Data Added',
+            'message' => 'Data successfully added to analytics data'
+        ];
+
+        return $this->response
+                ->setStatusCode(200)
+                ->setContentType('application/json')
+                ->setBody(json_encode($response));
+        
+    }
+
+    public function deleteAnalyticsData(){
+        //Get API Request Data from NuxtJs
+        $data = $this->request->getJSON();
+
+        $where = [
+            'id' => $data->dataId
+        ];
+        // before delete validate if there is anyone applied
+        
+        
+        //Select Query for finding User Information
+        $query = $this->analyticsModel->deleteAnalyticData($where);
 
         if($query){
 
             $response = [
-                'title' => 'Data Added',
-                'message' => 'Data successfully added to analytics data'
+                'title' => 'Delete successful',
+                'message' => 'Data is deleted'
             ];
  
             return $this->response
@@ -34,18 +73,15 @@ class Analytics extends BaseController
             
         } else {
             $response = [
-                'error' => 400,
-                'title' => 'Registration Failed!',
-                'message' => 'Please check your data.'
+                'title' => 'Update Failed!',
+                'message' => 'Please check your data and connect to your Admin'
             ];
  
             return $this->response
-                    ->setStatusCode(200)
+                    ->setStatusCode(400)
                     ->setContentType('application/json')
                     ->setBody(json_encode($response));
         }
-        // print_r($data);
-        // exit();
         
     }
 
@@ -241,7 +277,7 @@ class Analytics extends BaseController
             if($data->reportType === 'enrollment'){
                 $list[$key] = (object)[
                     "group" => (object)[
-                        "title"=> $value->classYear ." - ". $value->term,
+                        "title"=> $value->yearFrom ." - ". $value->term,
                         "cols"=> 2,
                     ],
                     "series" => [
@@ -270,7 +306,7 @@ class Analytics extends BaseController
             } else if($data->reportType === 'graduate'){
                 $list[$key]["male"] = (int)$value->male;
                 $list[$key]["female"] = (int)$value->female;
-                $list[$key]["categories"] = $value->term;
+                $list[$key]["categories"] = $value->yearFrom ." - ". $value->term;
             }
         }
 

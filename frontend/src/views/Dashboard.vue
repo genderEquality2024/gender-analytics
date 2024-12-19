@@ -234,7 +234,6 @@
 							female: [],
 						}
 						let groups = []
-
 						if(typeof res.data === "object"){
 							for (const el in res.data) {
 								groups.push(el)
@@ -243,17 +242,22 @@
 						} else {
 							selected = res.data
 						}
-
 						// selected.sort((a, b) => +(a.group.title > b.group.title) || -(a.group.title < b.group.title))
 						selected.forEach((el) => {
 							let totalMale = 0
 							let totalFemale = 0
-							
-							el.forEach(sel => {
-								totalMale += sel[0].y
-								totalFemale += sel[1].y
-							})
 
+							if(typeof el === "object"){
+								for (const i in el) {
+									totalMale += el[i][0].y
+									totalFemale += el[i][1].y
+								}
+							} else {
+								el.forEach(sel => {
+									totalMale += sel[0].y
+									totalFemale += sel[1].y
+								})
+							}
 							series.male.push(totalMale)
 							series.female.push(totalFemale)
 						});

@@ -132,6 +132,9 @@
 						
 					</a-form-item>
 				</a-col>
+				<a-col :span="24" :sm="24">
+					<a href="/docs/evaluation-format.csv" download="evaluation-format.csv" target="_blank">Click Here to Download Template</a>
+				</a-col>
 			</a-row>
 		</a-modal>
 	</div>

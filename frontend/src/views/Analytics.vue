@@ -79,10 +79,6 @@
           <a-form-item label="Employee Category">
             <a-select
                 v-model="filters.course"
-                v-decorator="[
-                    'course',
-                    { rules: [{ required: true, message: 'Please select your gender!' }] },
-                ]"
                 placeholder="Select a Employee Category"
                 :options="courseOpt"
                 @change="getDepartmentSelection"
@@ -95,13 +91,9 @@
           <a-form-item label="Department">
               <a-select
                 v-model="filters.department"
-                v-decorator="[
-                    'department',
-                    { rules: [{ required: true, message: 'Please select year' }] },
-                ]"
                 placeholder="Select a Year"
                 :options="schoolOpt"
-                @change="getDepartmentSelection"
+                @change="getListSelection"
               />
           </a-form-item>
         </a-form>
@@ -118,14 +110,15 @@
           :groupData.sync="groupData"
         /> -->
 				<CardLineChart
+          v-if="(filters.reportType !== 'employee')"
           :chartData.sync="seriesData"
           :groupData.sync="groupData"
         />
-				<!-- <CardEmployeeChart
+				<CardEmployeeChart
           v-if="(filters.reportType === 'employee')"
           :chartData.sync="seriesData"
           :groupData.sync="groupData"
-        /> -->
+        />
 			</a-col>
 		</a-row>
 		<!-- / Charts -->
@@ -244,7 +237,7 @@ export default ({
         getDepartmentSelection(){
           let typeData = typeof this.departments[this.filters.course];
           this.schoolOpt = typeData === 'object' ? Object.values(this.departments[this.filters.course]) : this.departments[this.filters.course]
-
+          
           this.filters.department = this.schoolOpt[0].value
 
           this.getListSelection()
@@ -318,8 +311,7 @@ export default ({
                       series.male.push(el)
                     }
                   })
-
-                  groups = ['Male', 'Female', 'Vacant']
+                  groups = [`${res.data[0].group }`]
                 }
                 
                 // console.log(series, groups)

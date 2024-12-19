@@ -26,6 +26,16 @@
 				</a-tag>
 			</template>
 
+			<template slot="action" slot-scope="action">
+				<a-popconfirm 
+					title="Are you sure you want to delete this data？" 
+					@confirm="deleteDataAnalytics(action)"
+					ok-text="Yes" cancel-text="No"
+				>
+					<a-button type="danger" icon="delete" />
+				</a-popconfirm>
+			</template>
+
 
 		</a-table>
 
@@ -44,7 +54,7 @@
 			<a-upload-dragger
 				name="file"
 				accept="csv"
-				@change="getFile"
+				:before-upload="getFile"
 			>
 				<p class="ant-upload-drag-icon">
 					<a-icon type="file-add" />
@@ -113,11 +123,27 @@ import * as d3 from "d3"
 			},
 		},
 		methods:{
+			deleteDataAnalytics(val){
+				console.log(val)
+				let payload = {
+					dataId: val.id
+				}
+				this.$api.post("analytics/delete/data", payload).then((res) => {
+					let response = {...res.data}
+					if(!response.error){
+						this.$emit('updateTable')
+					} else {
+						// show Error
+						console.log('there is some error')
+					}
+				})
+			},
 			async getFile(data){
 				// console.log(file)
 				// return
 				var reader = new FileReader();
-				let filePath = data.file.originFileObj
+				// let filePath = data.file.originFileObj
+				let filePath = data
 				reader.readAsText(new Blob(
 					[filePath],
 					{"type": filePath.type}
@@ -137,33 +163,26 @@ import * as d3 from "d3"
 					}
 				})
 
-				// console.log(csvData)
 				this.uploadCSVData(csvData)
-			// this.csvData = csvData
+				return false
 			},
 			async uploadCSVData(data){
 				const dataUploaded = await new Promise((resolve, reject) => {
-					let uploaded = 0
-					data.forEach(el => {
-						this.$api.post("analytics/add/new", el).then((res) => {
-							let response = {...res.data}
-							if(!response.error){
-							console.log('data uploaded')
-							} else {
+					let payload = {
+						csv: data
+					}
+					this.$api.post("analytics/add/new", payload).then((res) => {
+						let response = {...res.data}
+						if(!response.error){
+							resolve({
+								message: 'Upload complete'
+							})
+						} else {
 							// show Error
 							console.log('there is some error')
-							}
-						})
-						uploaded += 1
-					});
-
-					if(uploaded === data.length){
-						resolve({
-							message: 'Upload complete'
-						})
-					} else {
-						reject()
-					}
+							reject()
+						}
+					})
 				})
 			
 				this.$emit('updateTable')

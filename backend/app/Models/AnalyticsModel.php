@@ -50,6 +50,10 @@ class AnalyticsModel extends Model
 
         return $results;
     }
+    public function deleteAnalyticData($where){
+        $query = $this->db->table($this->table)->where($where)->delete();
+        return $query ? true : false;
+    }
     public function getDashboardGraphAnalytics($where){
 
         // $query = $this->db->table($this->table)->where($where)->get();

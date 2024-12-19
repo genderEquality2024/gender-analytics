@@ -95,6 +95,7 @@ export default ({
 		ModalPrintReport
 	},
 	computed:{
+		
 		filteredUser(){
 			return this.users.filter(el => 
 				this.selectedCourseFilter.includes(el.course) && 
@@ -117,6 +118,7 @@ export default ({
 				{
 					title: 'Year Recorded',
 					dataIndex: 'yearFrom',
+					key: 'yearFrom',
 				},
 				{
 					title: 'Type of Report',
@@ -138,6 +140,12 @@ export default ({
 					title: 'Female',
 					dataIndex: 'female',
 				},
+				{
+					title: 'Action',
+					scopedSlots: { 
+						customRender: 'action' 
+					},
+				},
 			];
 		},
 		user: function(){
@@ -151,6 +159,7 @@ export default ({
 			// Associating "Authors" table columns with its corresponding property.
 			users: [],
 			usersOrig: [],
+			sortedInfo: null,
 
 			csvData: [],
 			isNewUserModalOpen: false,
@@ -284,6 +293,7 @@ export default ({
 			this.$api.get("analytics/get/list").then((res) => {
 				let response = {...res.data}
 				if(!response.error){
+				response.list.sort((a, b) => +(a.yearFrom < b.yearFrom) || -(a.yearFrom > b.yearFrom))
 				this.users = response.list
 				this.usersOrig = response.list
 

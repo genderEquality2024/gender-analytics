@@ -96,11 +96,11 @@
 		},
 		computed:{
 			totalMaleCount(){
-				let maleCount = this.chartData.male.reduce((a, b) => Number(a) + Number(b), 0)
+				let maleCount = this.chartData.male.length > 0 ? this.chartData.male.reduce((a, b) => Number(a) + Number(b), 0) : 0
 				return maleCount
 			},
 			totalFemaleCount(){
-				let femaleCount = this.chartData.female.reduce((a, b) => Number(a) + Number(b), 0)
+				let femaleCount = this.chartData.female.length > 0 ? this.chartData.female.reduce((a, b) => Number(a) + Number(b), 0) : 0
 				return femaleCount
 			},
 			ovelAllTotal(){
