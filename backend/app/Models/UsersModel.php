@@ -65,7 +65,7 @@ class UsersModel extends Model
         return $all;
     }
 
-    public function updateTenantInfo($where, $setData){
+    public function updateUserInfo($where, $setData){
 
         $query = $this->db->table($this->table)->set($setData)->where($where)->update();
         return $query ? true : false;

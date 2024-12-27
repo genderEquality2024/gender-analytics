@@ -11,7 +11,7 @@
 			<!-- Sign In Form Column -->
 			<a-col :span="24" :md="12" :lg="{span: 12, offset: 0}" :xl="{span: 6, offset: 2}" class="col-form">
 				<h1 class="mb-15">Sign In</h1>
-				<h5 class="font-regular text-muted">Enter your username and password to sign in</h5>
+				<h5 class="font-regular text-muted">Gender and Development Analytics Dashboard</h5>
 
 				<!-- Sign In Form -->
 				<a-form
@@ -52,7 +52,7 @@
 
 			<!-- Sign In Image Column -->
 			<a-col :span="24" :md="12" :lg="12" :xl="12" class="col-img">
-				<img src="images/img-signin.jpg" alt="">
+				<img src="images/gadlogo.png" alt="">
 			</a-col>
 			<!-- Sign In Image Column -->
 

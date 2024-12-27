@@ -42,7 +42,7 @@
 					<!-- <template #title>
 						<h6 class="font-semibold m-0">Event Calendar</h6>
 					</template> -->
-					<a-calendar v-if="eventList.length > 0" @select="getEventDetails" @panelChange="onPanelChange">
+					<a-calendar @select="getEventDetails" @panelChange="onPanelChange">
 						<ul slot="dateCellRender" slot-scope="value" class="events">
 							<li v-for="item in getListData(value)" :key="item.id">
 								{{ item.title }}
@@ -124,15 +124,25 @@
 						<span>{{ eventDetails.description }}</span>
 					</a-form-item>
 				</a-col>
-				<a-col :span="24" :sm="24">
+				<a-col v-if="eventEvaluated" :span="24" :sm="24">
+					<a-alert
+                        message="Informational Notice"
+                        description="You can now view the responses of the instructors on the event you selected"
+                        type="info"
+                        show-icon
+                    />
+					<a href="/docs/evaluation-format.csv" download="evaluation-format.csv" target="_blank">Click Here to View the Responses</a>
+				</a-col>
+				<!-- eventEvaluated: false,
+				eventUploaded: false, -->
+				<a-col v-if="!eventUploaded" :span="24" :sm="24">
 					<a-form-item label="Upload Questionaires">
 						<a-upload :file-list="fileList" :remove="handleRemove" :before-upload="beforeUpload">
 							<a-button> <a-icon type="upload" /> Select File </a-button>
 						</a-upload>
-						
 					</a-form-item>
 				</a-col>
-				<a-col :span="24" :sm="24">
+				<a-col v-if="!eventUploaded" :span="24" :sm="24">
 					<a href="/docs/evaluation-format.csv" download="evaluation-format.csv" target="_blank">Click Here to Download Template</a>
 				</a-col>
 			</a-row>
@@ -150,6 +160,8 @@
 				addUSerModal: false,
 				eventDetailsModal: false,
 				eventDetails: null,
+				eventEvaluated: false,
+				eventUploaded: false,
 				form:{
 					title: "",
 					description: "",
@@ -202,12 +214,14 @@
 				for (let index = 0; index <= daysDiff; index++) {
 					let evntMonth = moment(this.rangeDate[0]).add(index, 'd').format('M')
 					let evntDay = moment(this.rangeDate[0]).add(index, 'd').format('DD')
+					let evntYear = moment(this.rangeDate[0]).add(index, 'd').format('YYYY')
 					let evntDate = moment(this.rangeDate[0]).add(index, 'd').format('YYYY-MM-DD')
 					
 					let payload = {
 						...this.form,
 						month: evntMonth,
 						days: evntDay,
+						year: evntYear,
 						eventDate: evntDate
 					}
 					this.$api.post("events/add", payload).then((res) => {
@@ -250,11 +264,16 @@
 			getListData(value) {
 				let listData;
 				let day = value.date();
-				listData = this.eventList.filter(el =>
-				 	Number(el.days) === day && 
-					Number(el.month) === Number(this.currMonth) &&
-					Number(el.year) === Number(this.currYear)
-				)
+				if(this.eventList.length > 0){
+					listData = this.eventList.filter(el =>
+						Number(el.days) === day && 
+						Number(el.month) === Number(this.currMonth) &&
+						Number(el.year) === Number(this.currYear)
+					)
+				} else {
+					listData = []
+				}
+				
 				return listData || [];
 			},
 			onPanelChange(value, mode){
@@ -272,8 +291,50 @@
 
 				this.eventDetails = data.length > 0 ? data[0] : null
 				this.eventDetailsModal = true
+				this.checkEvelauatedResponse();
+				this.checkEventQuestionaires();
 			},
-
+			async checkEvelauatedResponse(){
+				let payload = {
+					eventId: this.eventDetails.eventCode
+				}
+				this.$api.post("evaluation/response/get", payload).then((res) => {
+					let response = {...res.data}
+					if(!response.error){
+                        
+						if(res.data.length > 0){
+							// hide upload
+							this.eventEvaluated = true;
+						} else {
+							// enable upoload
+							this.eventEvaluated = false;
+						}
+					} else {
+						// show Error
+						console.log('there is some error')
+					}
+				})
+			},
+			async checkEventQuestionaires(){
+				let payload = {
+					eventId: this.eventDetails.eventCode
+				}
+				this.$api.post("evaluation/get/questions", payload).then((res) => {
+					let response = {...res.data}
+					if(!response.error){
+                        if(res.data.length > 0){
+							// hide upload
+							this.eventUploaded = true;
+						} else {
+							// enable upoload
+							this.eventUploaded = false;
+						}
+					} else {
+						// show Error
+						console.log('there is some error')
+					}
+				})
+			},
 			handleRemove(file) {
 				this.csvData = [];
 			},

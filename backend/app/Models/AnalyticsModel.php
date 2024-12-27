@@ -60,7 +60,11 @@ class AnalyticsModel extends Model
         // $results = $query->getResult();
 
         // return $results;
-        $sql = "SELECT * FROM ".$this->table." WHERE yearFrom BETWEEN :yearFrom: AND :yearTo: AND reportType = :reportType:";
+        if($where["page"] === "analytics"){
+            $sql = "SELECT * FROM ".$this->table." WHERE yearFrom BETWEEN :yearFrom: AND :yearTo: AND reportType = :reportType: AND course = :course:";
+        } else {
+            $sql = "SELECT * FROM ".$this->table." WHERE yearFrom BETWEEN :yearFrom: AND :yearTo: AND reportType = :reportType:";
+        }
    
         $query = $this->db->query($sql, $where);
         $results = $query->getResult();

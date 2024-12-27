@@ -37,4 +37,21 @@ class EvaluationModel extends Model
     protected $validationMessages = [];
     protected $skipValidation     = false;
 
+    public function checkDuplicateResponse($where){
+        $query = $this->db->table($this->responseTable)->where($where)->get();
+        $results = $query->getRow();
+
+        return $results;
+    }
+    public function checkResponse($where){
+        $query = $this->db->table($this->responseTable)->where($where)->get();
+        $results = $query->getResult();
+
+        return $results;
+    }
+    public function addResponse($payload){
+        $query = $this->db->table($this->responseTable)->insert($payload);
+        return $query ? true : false;
+    }
+
 }

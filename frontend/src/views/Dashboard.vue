@@ -71,7 +71,7 @@
 
 				<!-- Active Users Card -->
 				<CardLineChart
-					title="Enrolled Student Analytics"
+					title="No. of Enrolled Students"
 					description="5 years graph representation of the GAD"
 					:chartData.sync="seriesDataEnroll"
           			:groupData.sync="groupDataEnroll"
@@ -83,7 +83,7 @@
 				
 				<!-- Sales Overview Card -->
 				<CardLineChart
-					title="Graduate Student Analytics"
+					title="No. of Student Graduates"
 					description="5 years graph representation of the GAD"
 					:chartData.sync="seriesDataGrad"
           			:groupData.sync="groupDataGrad"
@@ -162,7 +162,7 @@
 					color: 'orange',
 					icon: 'idcard'
 				}, {
-					label: 'Graduating Student',
+					label: 'Student Graduates',
 					value: 0,
 					genders: {
 						male: 0,
@@ -187,8 +187,6 @@
 		},
 		created(){
 			this.getListSelection(this.selectedYears)
-			this.getEnrollmentData()
-			this.getGraduateData()
 		},
 		methods:{
 			moment,
@@ -202,28 +200,29 @@
 				this.$api.post("analytics/get/dashboard", payload).then((res) => {
 					let response = {...res.data}
 					if(!response.error){
-						this.dashboardCards[0].value = response.enrollment
+						this.dashboardCards[0].value = response.enrollment || "0"
 						this.dashboardCards[0].genders = response.genders.enrollment
-						this.dashboardCards[1].value = response.employee
+						this.dashboardCards[1].value = response.employee || "0"
 						this.dashboardCards[1].genders = response.genders.employee
-						this.dashboardCards[2].value = response.graduates
+						this.dashboardCards[2].value = response.graduates || "0"
 						this.dashboardCards[2].genders = response.genders.graduate
-						this.dashboardCards[3].value = response.resource
+						this.dashboardCards[3].value = response.resource || "0"
 						
 					} else {
 						// show Error
 						console.log('there is some error')
 					}
 				})
+
+
+				this.getEnrollmentData()
+				this.getGraduateData()
 			},
 			async getEnrollmentData(){
-				let from = moment(currentYear).subtract(5, 'y').format('YYYY')
-				let to = currentYear
-
 				let payload = {
-					from,
-					to,
-					reportType: 'enrollment'
+					...this.selectedYears,
+					reportType: 'enrollment',
+					page: 'dashboard',
 				}
 				this.$api.post("analytics/get/graph/dashboard", payload).then((res) => {
 					let response = {...res.data}
@@ -272,13 +271,10 @@
 				})
 			},
 			async getGraduateData(){
-				let from = moment(currentYear).subtract(5, 'y').format('YYYY')
-				let to = currentYear
-
 				let payload = {
-					from,
-					to,
-					reportType: 'graduate'
+					...this.selectedYears,
+					reportType: 'graduate',
+					page: 'dashboard',
 				}
 				this.$api.post("analytics/get/graph/dashboard", payload).then((res) => {
 					let response = {...res.data}

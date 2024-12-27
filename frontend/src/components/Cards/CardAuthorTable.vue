@@ -27,7 +27,7 @@
 			</template>
 
 			<template slot="editBtn" slot-scope="row">
-				<a-button type="link" :data-id="row.key" class="btn-edit">
+				<a-button type="link" :data-id="row.key"  @click="editUser(row)" class="btn-edit">
 					Edit
 				</a-button>
 			</template>
@@ -39,16 +39,17 @@
 			title="Add User Form"
 			centered
 		>
-		<template slot="footer">
-			<a-button key="submit" type="primary" :loading="loading" @click="onSubmit">
-				Submit
-			</a-button>
-		</template>
+			<template slot="footer">
+				<a-button key="submit" type="primary" :loading="loading" @click="onSubmit">
+					Submit
+				</a-button>
+			</template>
 			<a-form :label-col="{ span: 24 }" :wrapper-col="{ span: 24 }">
 				<a-row :gutter="24">
 					<a-col :span="24" :sm="12">
 						<a-form-item label="Username">
 							<a-input
+								:disabled="formMode === 'edit'"
 								v-model="form.username"
 							/>
 						</a-form-item>
@@ -56,6 +57,7 @@
 					<a-col :span="24" :sm="12">
 						<a-form-item label="Password">
 							<a-input
+								:disabled="formMode === 'edit'"
 								type="password"
 								v-model="form.password"
 							/>
@@ -113,11 +115,6 @@
 						</a-form-item>
 					</a-col>
 				</a-row>
-				
-				
-
-				
-				
 			</a-form>
 		</a-modal>
 	</a-card>
@@ -143,6 +140,8 @@
 				// Active button for the "Authors" table's card header radio button group.
 				authorsHeaderBtns: 'all',
 				addUSerModal: false,
+				formMode: "add",
+				userId: null,
 				form: {
 					username: '',
 					password: '',
@@ -157,7 +156,7 @@
 				},
 				userTypeOpt: [
 					{
-						label: "Admin",
+						label: "Super Admin",
 						value: 1,
 					},
 					{
@@ -168,13 +167,36 @@
 			}
 		},
 		methods:{
+			editUser(row){
+				for (const i in this.form) {
+					if(i === 'userType'){
+						row[i] = Number(row[i])
+					}
+					this.form[i] = row[i]
+				}
+				this.formMode = 'edit'
+				this.userId = row.id
+				this.addUSerModal = true
+			},
 			async onSubmit(){
-				let payload = {
-					...this.form,
-					status: 1
+				let payload = {}
+				let api = "users/create"
+
+				if(this.formMode === 'edit'){
+					payload = {
+						...this.form,
+						uid: this.userId,
+						status: 1
+					}
+					api = "users/update"
+				} else {
+					payload = {
+						...this.form,
+						status: 1
+					}
 				}
 
-				this.$api.post("users/create", payload).then((res) => {
+				this.$api.post(api, payload).then((res) => {
 					let response = {...res.data}
 					if(!response.error){
 						this.clearForm();

@@ -333,11 +333,23 @@ class Analytics extends BaseController
         //Get API Request Data from NuxtJs
         $data = $this->request->getJSON();
 
-        $where = [
-            "yearFrom" => $data->from,
-            "yearTo" => $data->to,
-            "reportType" => $data->reportType,
-        ];
+        if($data->page === "analytics"){
+            $where = [
+                "yearFrom" => $data->from,
+                "yearTo" => $data->to,
+                "reportType" => $data->reportType,
+                "course" => $data->course,
+                "page" => $data->page,
+            ];
+        } else {
+            $where = [
+                "yearFrom" => $data->from,
+                "yearTo" => $data->to,
+                "reportType" => $data->reportType,
+                "page" => $data->page,
+            ];
+        }
+        
 
         $query = $this->analyticsModel->getDashboardGraphAnalytics($where);
         $list = [];

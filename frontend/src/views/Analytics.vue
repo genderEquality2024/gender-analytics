@@ -104,18 +104,32 @@
 		<!-- Charts -->
 		<a-row :gutter="24" type="flex" align="stretch">
 			<a-col :span="24" :lg="24" class="mb-24">
-				<!-- <CardBarChart
+				<CardBarChart
           v-if="(filters.reportType === 'enrollment')"
-          :chartData.sync="seriesData"
-          :groupData.sync="groupData"
-        /> -->
+          title="No. of Enrolled Students"
+          description="Population rates representaion annually"
+          :chartData.sync="seriesDataEnroll"
+          :groupData.sync="groupDataEnroll"
+        />
+				<CardBarChart
+          v-if="(filters.reportType === 'graduate')"
+          title="No. of Graduate Students"
+          description="Population rates representaion annually"
+          :chartData.sync="seriesDataGrad"
+          :groupData.sync="groupDataGrad"
+        />
+			</a-col>
+			<a-col :span="24" :lg="24" class="mb-24">
 				<CardLineChart
           v-if="(filters.reportType !== 'employee')"
+          title="No. of Enrolled Students"
           :chartData.sync="seriesData"
           :groupData.sync="groupData"
         />
+
 				<CardEmployeeChart
           v-if="(filters.reportType === 'employee')"
+          title="Employee Analytical Chart"
           :chartData.sync="seriesData"
           :groupData.sync="groupData"
         />
@@ -141,40 +155,45 @@ export default ({
 		return {
 			// Counter Widgets Stats
 			filters: {
-              reportType: 'enrollment',
-              course: '',
-              department: '',
-            },
+        reportType: 'enrollment',
+        course: '',
+        department: '',
+      },
 
-            selectedYears: {
-              from: "2019",
-              to: "2024"
-            },
-            showCharts: false,
-            courseOpt: [],
-            schoolOpt: [],
-            departments: [],
-            chartOptions: [],
-            chartGradOptions: [],
-            seriesData: {
-              male: [],
-              female: [],
-            },
-            groupData: [],
-            typeOfReportOpt: [
-                {
-                    label: "Enrollment",
-                    value: "enrollment",
-                },
-                {
-                    label: "Graduates",
-                    value: "graduate",
-                },
-                {
-                    label: "Employment",
-                    value: "employee",
-                },
-            ],
+      selectedYears: {
+        from: "2019",
+        to: "2024"
+      },
+      showCharts: false,
+      courseOpt: [],
+      schoolOpt: [],
+      departments: [],
+      chartOptions: [],
+      chartGradOptions: [],
+      seriesData: {
+        male: [],
+        female: [],
+      },
+      groupData: [],
+      typeOfReportOpt: [
+          {
+              label: "Enrollment",
+              value: "enrollment",
+          },
+          {
+              label: "Graduates",
+              value: "graduate",
+          },
+          {
+              label: "Employment",
+              value: "employee",
+          },
+      ],
+
+      seriesDataEnroll: [],
+			groupDataEnroll: [],
+			seriesDataGrad: [],
+			groupDataGrad: [],
 		}
 	},
     computed:{
@@ -281,6 +300,8 @@ export default ({
                       }
                     })
                   });
+
+                  this.getEnrollmentData()
                 } else if(this.filters.reportType === 'graduate'){
                     series = {
                       male: [],
@@ -295,7 +316,7 @@ export default ({
                     }
                     series.male = maleSeries
                     series.female = femaleSeries
-
+                    this.getGraduateData()
                 } else if(this.filters.reportType === 'employee'){
                   series = {
                     male: [],
@@ -323,6 +344,113 @@ export default ({
               }
             })
         },
+
+      async getEnrollmentData(){
+				let payload = {
+					...this.selectedYears,
+					reportType: 'enrollment',
+          page: 'analytics',
+          course: this.filters.course,
+				}
+				this.$api.post("analytics/get/graph/dashboard", payload).then((res) => {
+					let response = {...res.data}
+					if(!response.error){
+						let selected = [];
+						let series = {
+							male: [],
+							female: [],
+						}
+						let groups = []
+						if(typeof res.data === "object"){
+							for (const el in res.data) {
+								groups.push(el)
+								selected.push(res.data[el])
+							}
+						} else {
+							selected = res.data
+						}
+						// selected.sort((a, b) => +(a.group.title > b.group.title) || -(a.group.title < b.group.title))
+						selected.forEach((el) => {
+							let totalMale = 0
+							let totalFemale = 0
+
+							if(typeof el === "object"){
+								for (const i in el) {
+									totalMale += el[i][0].y
+									totalFemale += el[i][1].y
+								}
+							} else {
+								el.forEach(sel => {
+									totalMale += sel[0].y
+									totalFemale += sel[1].y
+								})
+							}
+							series.male.push(totalMale)
+							series.female.push(totalFemale)
+						});
+
+						this.seriesDataEnroll = series
+            this.groupDataEnroll = groups
+						
+					} else {
+						// show Error
+						console.log('there is some error')
+					}
+				})
+			},
+			async getGraduateData(){
+				let payload = {
+					...this.selectedYears,
+					reportType: 'graduate',
+          page: 'analytics',
+          course: this.filters.course,
+				}
+				this.$api.post("analytics/get/graph/dashboard", payload).then((res) => {
+					let response = {...res.data}
+					if(!response.error){
+						let selected = [];
+						let series = {
+							male: [],
+							female: [],
+						}
+						let groups = []
+
+						if(typeof res.data === "object"){
+							for (const el in res.data) {
+								groups.push(el)
+								selected.push(res.data[el])
+							}
+						} else {
+							selected = res.data
+						}
+						
+						// selected.sort((a, b) => +(a.group.title > b.group.title) || -(a.group.title < b.group.title))
+						selected.forEach((el) => {
+							let totalMale = 0
+							let totalFemale = 0
+							if(typeof el === "object"){
+								for (const i in el) {
+									totalMale += el[i].male
+									totalFemale += el[i].female
+								}
+							}
+
+							series.male.push(totalMale)
+							series.female.push(totalFemale)
+						});
+
+						this.seriesDataGrad = series
+            this.groupDataGrad = groups
+
+						
+					} else {
+						// show Error
+						console.log('there is some error')
+					}
+				})
+			}
+
+
     }
 })
 

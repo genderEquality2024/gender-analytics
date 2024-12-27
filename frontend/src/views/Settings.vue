@@ -29,7 +29,7 @@
                                 />
                             </a-card-meta>
                             <template slot="actions" >
-                                <a-button @click="databaseAction(salary.action)" slot="actions" type="link">
+                                <a-button @click="openDBModal(salary.action)" slot="actions" type="link">
                                     {{ salary.action }}
                                 </a-button>
                             </template>
@@ -62,7 +62,27 @@
 		</a-row>
 
 		
-
+		<a-modal
+			v-model="backupModal"
+			title="Backup Database"
+			centered
+		>
+			<template slot="footer">
+				<a-button key="submit" type="primary" :loading="loading" @click="databaseAction">
+					Confirm
+				</a-button>
+			</template>
+			<a-row :gutter="24">
+				<a-col :span="24" :sm="24">
+					<a-form-item label="Password">
+						<a-input
+							type="password"
+							v-model="password"
+						/>
+					</a-form-item>
+				</a-col>
+			</a-row>
+		</a-modal>
 	</div>
 </template>
 
@@ -128,6 +148,9 @@
 
 				// Associating "Invoices" list data with its corresponding property.
 				invoiceData,
+				password: '',
+				backupModal: false,
+				restoreModal: false,
 				
 			}
 		},
@@ -138,17 +161,33 @@
 			},
 		},
 		methods:{
+			openDBModal(type){
+				if(type === 'Download'){
+					this.backupModal = true;
+				} else {
+					this.restoreModal = true;
+				}
+			},
 			async databaseAction(){
 				let vm = this;
 				this.$confirm({
 					title: 'Do you want to delete these items?',
 					content: ``,
 					onOk() {
-						let payload = {}
+						let payload = {
+							userId: vm.user.userId,
+							password: vm.password 
+						}
 						vm.$api.post("misc/database/backup", payload).then((res) => {
 							let response = {...res.data}
 							if(!response.error){
-								
+								// console.log(res.data)
+								const anchor = document.createElement('a');
+								anchor.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(res.data);
+								anchor.target = '_blank';
+								anchor.download = `database-backup-${new Date().toISOString()}.sql`;
+								anchor.click();
+								vm.backupModal = false;
 							} else {
 								// show Error
 								console.log('there is some error')

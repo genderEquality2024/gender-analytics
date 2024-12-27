@@ -114,8 +114,8 @@
 			:title="eventDetails.title"
 			centered
 		>	
-			<template slot="footer">
-                <a-button @click="downloadQuestions" type="link">
+			<template v-if="!eventEvaluated" slot="footer">
+                <a-button  @click="downloadQuestions" type="link">
                     <svg width="15" height="15" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" clip-rule="evenodd" d="M3 17C3 16.4477 3.44772 16 4 16H16C16.5523 16 17 16.4477 17 17C17 17.5523 16.5523 18 16 18H4C3.44772 18 3 17.5523 3 17ZM6.29289 9.29289C6.68342 8.90237 7.31658 8.90237 7.70711 9.29289L9 10.5858L9 3C9 2.44772 9.44771 2 10 2C10.5523 2 11 2.44771 11 3L11 10.5858L12.2929 9.29289C12.6834 8.90237 13.3166 8.90237 13.7071 9.29289C14.0976 9.68342 14.0976 10.3166 13.7071 10.7071L10.7071 13.7071C10.5196 13.8946 10.2652 14 10 14C9.73478 14 9.48043 13.8946 9.29289 13.7071L6.29289 10.7071C5.90237 10.3166 5.90237 9.68342 6.29289 9.29289Z" fill="#111827"/>
                     </svg>
@@ -131,7 +131,7 @@
 						{{ uploading ? 'Uploading' : 'Submit Answer' }}
 				</a-button>
 			</template>
-			<a-row :gutter="24">
+			<a-row v-if="!eventEvaluated" :gutter="24">
 				<a-col :span="24" :sm="24">
 					<a-alert
                         message="Informational Notes"
@@ -139,6 +139,11 @@
                         type="info"
                         show-icon
                     />
+					<strong><i>Instruction:</i></strong> <br>
+					<i>- Acceptable value for the responseCol field</i><br>
+					<i><strong>Yes/yes</strong></i><br>
+					<i><strong>No/no</strong></i><br>
+					<i><strong>Partly/partly</strong> (for Partly Yes)</i><br>
 				</a-col>
                 <a-col :span="24" :sm="24">
 					<a-form-item label="Upload Response">
@@ -147,6 +152,16 @@
 						</a-upload>
 						
 					</a-form-item>
+				</a-col>
+			</a-row>
+			<a-row v-if="eventEvaluated" :gutter="24">
+				<a-col :span="24" :sm="24">
+					<a-alert
+                        message="Event Already Evaluated"
+                        description="Thankyou for your response and to create an amazing result."
+                        type="success"
+                        show-icon
+                    />
 				</a-col>
 			</a-row>
 		</a-modal>
@@ -163,6 +178,7 @@
 				addUSerModal: false,
 				eventDetailsModal: false,
 				eventDetails: null,
+				eventEvaluated: false,
 				form:{
 					title: "",
 					description: "",
@@ -341,8 +357,30 @@
 
 				this.eventDetails = data.length > 0 ? data[0] : null
 				this.eventDetailsModal = true
+				this.checkEvelauatedResponse()
 			},
-
+			async checkEvelauatedResponse(){
+				let payload = {
+					eventId: this.eventDetails.eventCode,
+					userId: this.user.userId
+				}
+				this.$api.post("evaluation/response/get", payload).then((res) => {
+					let response = {...res.data}
+					if(!response.error){
+                        
+						if(res.data.length > 0){
+							// hide upload
+							this.eventEvaluated = true;
+						} else {
+							// enable upoload
+							this.eventEvaluated = false;
+						}
+					} else {
+						// show Error
+						console.log('there is some error')
+					}
+				})
+			},
 			handleRemove(file) {
 				this.csvData = [];
 			},
@@ -371,14 +409,21 @@
                             if(listData[i] !== undefined){
                                 let scoreKey = {
                                     "no": "noScore",
+                                    "No": "noScore",
                                     "partly": "partlyScore",
+                                    "Partly": "partlyScore",
                                     "yes": "yesScore",
+                                    "Yes": "yesScore",
                                 }
                                 if(listData[i].isCounted === 'yes'){
-                                    csvData[i].scoreCol = listData[i][scoreKey[csvData[i].responseCol]]
-                                }
+                                    csvData[i].scoreCol = Number(listData[i][scoreKey[csvData[i].responseCol]])
+                                } else {
+									csvData[i].scoreCol = 0
+								}
 
-                                console.log(listData[i])
+								csvData[i].eid = this.user.userId
+								csvData[i].eventId = listData[i].eventId
+								csvData[i].questionId = listData[i].id
                             }
                         }
 					} else {
@@ -387,7 +432,7 @@
 					}
 				})
                 console.log(csvData)
-				// this.csvData = csvData
+				this.csvData = csvData
 				return false;
 			},
 			handleChange(info) {
@@ -403,37 +448,22 @@
 			},
 			async uploadCSVData(data){
 				this.uploading = true
-				data = data.map((el) => {
-					return {
-						...el,
-						eventId: this.eventDetails.eventCode,
-						createdBy: Number(this.user.userId)
-					}
-				})
-
 				const dataUploaded = await new Promise((resolve, reject) => {
-					let uploaded = 0
-					data.forEach(el => {
-						this.$api.post("evaluation/create/content", el).then((res) => {
-							let response = {...res.data}
-							if(!response.error){
-							console.log('data uploaded')
-							} else {
+					let payload = {
+						csv: data
+					}
+					this.$api.post("evaluation/response/submit", payload).then((res) => {
+						let response = {...res.data}
+						if(!response.error){
+							resolve({
+								message: 'Upload complete'
+							})
+						} else {
 							// show Error
 							console.log('there is some error')
-							}
-						})
-						uploaded += 1
-					});
-
-					if(uploaded === data.length){
-						this.$message.success(`File uploaded successfully`);
-						resolve({
-							message: 'Upload complete'
-						})
-					} else {
-					reject()
-					}
+							reject()
+						}
+					})
 				})
 			
 				this.getList();

@@ -42,6 +42,7 @@ $routes->group('gender_analytics/api/v1', function($routes){
 
 	$routes->group('users', function($routes){
 		$routes->post('create', 'Users::registerUser');
+		$routes->post('update', 'Users::updateUser');
 		$routes->get('getUsersList', 'Users::getAllUserList');
 		$routes->post('getUserById', 'Users::getUserDetails');
 	});
@@ -70,6 +71,8 @@ $routes->group('gender_analytics/api/v1', function($routes){
 	$routes->group('evaluation', function($routes){
 		$routes->post('create/content', 'Evaluation::addEventQuestionaire');
 		$routes->post('get/questions', 'Evaluation::getListEventQuestionaire');
+		$routes->post('response/submit', 'Evaluation::addEventResponse');
+		$routes->post('response/get', 'Evaluation::getEventResponse');
 	});
 
 	$routes->group('misc', function($routes){

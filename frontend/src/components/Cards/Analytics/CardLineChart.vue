@@ -6,7 +6,7 @@
 			:height="310" 
 			:cdata="lineChartData"></chart-area>
 		<div class="card-content">
-			<p>Graduate Students Analytics</p>
+			<p>{{ title }}</p>
 		</div>
 		<a-row class="card-footer" type="flex" justify="center" align="top">
 			<a-col :span="8">
@@ -33,6 +33,14 @@
 
 	export default ({
 		props:{
+			title: {
+				type: String,
+				default: "Graph"
+			},
+			description: {
+				type: String,
+				default: "Graph representation"
+			},
             chartData: {
                 type: Object,
                 default: {

@@ -92,6 +92,7 @@ export default ({
 			docList: [],
 			docsOpt: [],
 			evaluationList:[],
+      selectedTitle: "",
 			form: {
 				title: '',
 				content: ''
@@ -115,6 +116,9 @@ export default ({
       }
     },
 	methods:{
+    async changeResource(val){
+      console.log(val)
+    },
       async getFile(data){
         console.log(data.file)
         let filePath = data.file.originFileObj
@@ -158,6 +162,15 @@ export default ({
         const existingPdfBytes = await fetch(this.resourceUrl).then(res => res.arrayBuffer())
         const pdfDoc = await PDFDocument.load(existingPdfBytes)
 
+        // get the index of the selected
+        let title = "Default File"
+        let findTitle = this.docsOpt.filter(el => el.value === this.resourceUrl);
+        if(findTitle.length > 0){
+          title = findTitle[0].label
+        } 
+
+        pdfDoc.setTitle(title)
+
         const pdfDataUri = await pdfDoc.saveAsBase64({ dataUri: true });
         document.getElementById('pdf').src = pdfDataUri;
 
@@ -174,24 +187,7 @@ export default ({
           if(!response.error){
             this.clearForm();
             this.getList();
-            // toast.add({
-            //   id: 'success_submit',
-            //   title: 'Delete Success',
-            //   description: 'Please check',
-            //   icon: 'i-octicon-check-circle-fill-24',
-            //   color: "green",
-            //   timeout: 1000,
-            // })
           } else {
-            // toast.add({
-            //   id: 'error_submit',
-            //   title: 'Delete Failed.',
-            //   description: 'Please contact your administrator.',
-            //   icon: 'i-octicon-alert-24',
-            //   color: "red",
-            //   timeout: 1000,
-            // })
-            // show Error
             console.log('there is some error')
           }
         })
@@ -238,6 +234,7 @@ export default ({
               }
             })
             this.resourceUrl = this.docsOpt[0].value
+            this.selectedTitle = this.docsOpt[0].tilte
           } else {
             // show Error
             console.log('there is some error')

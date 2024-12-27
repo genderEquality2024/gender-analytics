@@ -8,11 +8,11 @@
 			:data.sync="barChartData">
 		</chart-bar>
 		<div class="card-title">
-			<h6>Enrolled Student Data Analytics</h6>
+			<h6>{{ title }}</h6>
 			<!-- <p>YYYY to YYYY</p> -->
 		</div>
 		<div class="card-content">
-			<p>Graph representation of the student</p>
+			<p>{{ description }}</p>
 		</div>
 		<a-row class="card-footer" type="flex" justify="center" align="top">
 			<a-col :span="8">
@@ -40,6 +40,14 @@
 
 	export default ({
 		props:{
+			title: {
+				type: String,
+				default: 'Chart Title'
+			},
+			description: {
+				type: String,
+				default: "Graph representation"
+			},
             chartData: {
                 type: Object,
                 default: {
