@@ -40,9 +40,26 @@
 			centered
 		>
 			<template slot="footer">
+				<a-popconfirm
+					v-if="userStatus === '1'"
+					title="Are you sure you want to Deactivate this user?" 
+					@confirm="updateUserStatus(0)"
+					ok-text="Yes" cancel-text="No"
+				>
+					<a-button type="link" icon="lock">Deactivate</a-button>
+				</a-popconfirm>
+				<a-popconfirm
+					v-if="userStatus === '0'"
+					title="Are you sure you want to Activate this user?" 
+					@confirm="updateUserStatus(1)"
+					ok-text="Yes" cancel-text="No"
+				>
+					<a-button type="link" icon="unlock">Activate</a-button>
+				</a-popconfirm>
 				<a-button key="submit" type="primary" :loading="loading" @click="onSubmit">
 					Submit
 				</a-button>
+				
 			</template>
 			<a-form :label-col="{ span: 24 }" :wrapper-col="{ span: 24 }">
 				<a-row :gutter="24">
@@ -142,6 +159,7 @@
 				addUSerModal: false,
 				formMode: "add",
 				userId: null,
+				userStatus: null,
 				form: {
 					username: '',
 					password: '',
@@ -160,7 +178,7 @@
 						value: 1,
 					},
 					{
-						label: "Employee",
+						label: "Coordinator",
 						value: 2,
 					},
 				],
@@ -174,9 +192,31 @@
 					}
 					this.form[i] = row[i]
 				}
+				console.log(row)
 				this.formMode = 'edit'
 				this.userId = row.id
+				this.userStatus = row.status
 				this.addUSerModal = true
+			},
+			async updateUserStatus(status){
+				let payload = {
+					status,
+					uid: this.userId,
+				}
+				let api = "users/update/status"
+
+
+				this.$api.post(api, payload).then((res) => {
+					let response = {...res.data}
+					if(!response.error){
+						this.clearForm();
+						this.$emit('updateTable')
+						this.addUSerModal = false
+					} else {
+						// show Error
+						console.log('there is some error')
+					}
+				})
 			},
 			async onSubmit(){
 				let payload = {}
@@ -188,7 +228,7 @@
 						uid: this.userId,
 						status: 1
 					}
-					api = "users/update"
+					
 				} else {
 					payload = {
 						...this.form,

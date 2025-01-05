@@ -14,7 +14,7 @@
 		<div class="card-content">
 			<p>{{ description }}</p>
 		</div>
-		<a-row class="card-footer" type="flex" justify="center" align="top">
+		<a-row v-if="showTotal" class="card-footer" type="flex" justify="center" align="top">
 			<a-col :span="8">
 				<h4>{{ totalMaleCount }}</h4>
 				<span>Male</span>
@@ -55,6 +55,10 @@
 					female: [],
 				}
             },
+			showTotal:{
+				type: Boolean,
+				default: true
+			},
             groupData: {
                 type: Array,
                 default: []

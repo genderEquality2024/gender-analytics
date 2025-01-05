@@ -67,19 +67,18 @@
 
 		<!-- Charts -->
 		<a-row :gutter="24" type="flex" align="stretch">
-			<a-col :span="24" :lg="10" class="mb-24">
-
+			<a-col :span="24" :lg="12" class="mb-24">
 				<!-- Active Users Card -->
 				<CardLineChart
 					title="No. of Enrolled Students"
 					description="5 years graph representation of the GAD"
 					:chartData.sync="seriesDataEnroll"
-          			:groupData.sync="groupDataEnroll"
+					:groupData.sync="groupDataEnroll"
 				></CardLineChart>
 				<!-- Active Users Card -->
 
 			</a-col>
-			<a-col :span="24" :lg="14" class="mb-24">
+			<a-col :span="24" :lg="12" class="mb-24">
 				
 				<!-- Sales Overview Card -->
 				<CardLineChart
@@ -91,6 +90,37 @@
 				<!-- / Sales Overview Card -->
 
 			</a-col>
+			<a-col :span="16" :lg="14" class="mb-24">
+				<CardBarChart
+					title="Enrollment Summary"
+					description="Course over all total of the year"
+					:chartData.sync="seriesSummaryDataEnroll"
+					:groupData.sync="groupSummaryDataEnroll"
+					:showTotal="false"
+				/>
+			</a-col>
+			<a-col :span="8" :lg="10" class="mb-24">
+				<CardTotalCourseList
+					:data="summaryList"
+				></CardTotalCourseList>
+			</a-col>
+
+			<a-col :span="8" :lg="10" class="mb-24">
+				<CardTotalCourseList
+					:data="summaryListGraduate"
+				></CardTotalCourseList>
+			</a-col>
+			<a-col :span="16" :lg="14" class="mb-24">
+				<CardBarChart
+					title="Enrollment Summary"
+					description="Course over all total of the year"
+					:chartData.sync="seriesSummaryDataGraduate"
+					:groupData.sync="groupSummaryDataGraduate"
+					:showTotal="false"
+				/>
+			</a-col>
+			
+			
 		</a-row>
 		<!-- / Charts -->
 
@@ -100,11 +130,13 @@
 <script>
 	import moment from "moment";
 	// Bar chart for "Active Users" card.
-	import CardBarChart from '../components/Cards/CardBarChart' ;
+	import CardBarChart from '../components/Cards/Analytics/CardBarChart' ;
 	// Line chart for "Sales Overview" card.
 	import CardLineChart from '../components/Cards/CardLineChart' ;
 	// Counter Widgets
 	import WidgetCounter from '../components/Widgets/WidgetCounter' ;
+	import CardTotalCourseList from '../components/Cards/CardTotalCourseList';
+import { sum } from "pdf-lib";
 
 	const currentYear = moment().format('YYYY')
 
@@ -112,6 +144,7 @@
 		components: {
 			CardBarChart,
 			CardLineChart,
+			CardTotalCourseList,
 			WidgetCounter
 		},
 		computed:{
@@ -183,6 +216,24 @@
 				groupDataEnroll: [],
 				seriesDataGrad: [],
 				groupDataGrad: [],
+				summaryList: [
+					{
+						title: "Course",
+						male: "0",
+						female: "0",
+					}
+				],
+				seriesSummaryDataEnroll: [],
+				groupSummaryDataEnroll: [],
+				summaryListGraduate: [
+					{
+						title: "Course",
+						male: "0",
+						female: "0",
+					}
+				],
+				seriesSummaryDataGraduate: [],
+				groupSummaryDataGraduate: [],
 			}
 		},
 		created(){
@@ -233,13 +284,13 @@
 							female: [],
 						}
 						let groups = []
-						if(typeof res.data === "object"){
-							for (const el in res.data) {
+						if(typeof res.data.list === "object"){
+							for (const el in res.data.list) {
 								groups.push(el)
-								selected.push(res.data[el])
+								selected.push(res.data.list[el])
 							}
 						} else {
-							selected = res.data
+							selected = res.data.list
 						}
 						// selected.sort((a, b) => +(a.group.title > b.group.title) || -(a.group.title < b.group.title))
 						selected.forEach((el) => {
@@ -264,6 +315,38 @@
 						this.seriesDataEnroll = series
                 		this.groupDataEnroll = groups
 						
+
+						// Get summary
+						let summary = [];
+						let summaryGroup = []
+						let summarySeries = {
+							male: [],
+							female: [],
+						}
+						
+						for(const i in res.data.overall){
+							let summaryObj = {
+								title: '',
+								male: 0,
+								female: 0,
+							};
+							summaryObj.title = i
+							summaryGroup.push(i)
+
+							for(const e in res.data.overall[i]){
+								summaryObj.male += res.data.overall[i][e].male
+								summaryObj.female += res.data.overall[i][e].female
+							}
+							
+							summarySeries.male.push(summaryObj.male)
+							summarySeries.female.push(summaryObj.female)
+							summary.push({...summaryObj})
+						} 
+						
+						
+						this.seriesSummaryDataEnroll = summarySeries
+						this.groupSummaryDataEnroll = summaryGroup
+						this.summaryList = summary
 					} else {
 						// show Error
 						console.log('there is some error')
@@ -286,13 +369,13 @@
 						}
 						let groups = []
 
-						if(typeof res.data === "object"){
-							for (const el in res.data) {
+						if(typeof res.data.list === "object"){
+							for (const el in res.data.list) {
 								groups.push(el)
-								selected.push(res.data[el])
+								selected.push(res.data.list[el])
 							}
 						} else {
-							selected = res.data
+							selected = res.data.list
 						}
 						
 						// selected.sort((a, b) => +(a.group.title > b.group.title) || -(a.group.title < b.group.title))
@@ -313,7 +396,37 @@
 						this.seriesDataGrad = series
                 		this.groupDataGrad = groups
 
+						// Get summary
+						let summary = [];
+						let summaryGroup = []
+						let summarySeries = {
+							male: [],
+							female: [],
+						}
 						
+						for(const i in res.data.overall){
+							let summaryObj = {
+								title: '',
+								male: 0,
+								female: 0,
+							};
+							summaryObj.title = i
+							summaryGroup.push(i)
+
+							for(const e in res.data.overall[i]){
+								summaryObj.male += res.data.overall[i][e].male
+								summaryObj.female += res.data.overall[i][e].female
+							}
+							
+							summarySeries.male.push(summaryObj.male)
+							summarySeries.female.push(summaryObj.female)
+							summary.push({...summaryObj})
+						} 
+						
+						
+						this.seriesSummaryDataGraduate = summarySeries
+						this.groupSummaryDataGraduate = summaryGroup
+						this.summaryListGraduate = summary
 					} else {
 						// show Error
 						console.log('there is some error')

@@ -143,6 +143,45 @@ class Users extends BaseController
         // exit();
         
     }
+    public function updateUserStatus(){
+        //Get API Request Data from NuxtJs
+        $data = $this->request->getJSON();
+        $where = [
+            "id" => $data->uid
+        ];
+        $setData = [
+            "status" => $data->status,
+        ];
+        
+        $query = $this->userModel->updateUserInfo($where, $setData);
+
+        if($query){
+
+            $response = [
+                'title' => 'Update Information',
+                'message' => 'User data has been successfully updated.'
+            ];
+ 
+            return $this->response
+                    ->setStatusCode(200)
+                    ->setContentType('application/json')
+                    ->setBody(json_encode($response));
+            
+        } else {
+            $response = [
+                'title' => 'Registration Failed!',
+                'message' => 'Please check your data.'
+            ];
+ 
+            return $this->response
+                    ->setStatusCode(400)
+                    ->setContentType('application/json')
+                    ->setBody(json_encode($response));
+        }
+        // print_r($data);
+        // exit();
+        
+    }
     
     public function getAllUserList(){
 

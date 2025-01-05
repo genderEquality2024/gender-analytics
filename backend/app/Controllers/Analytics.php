@@ -353,6 +353,7 @@ class Analytics extends BaseController
 
         $query = $this->analyticsModel->getDashboardGraphAnalytics($where);
         $list = [];
+        $overall = [];
 
         foreach ($query as $key => $value){
             if($data->reportType === 'enrollment'){
@@ -377,13 +378,24 @@ class Analytics extends BaseController
                 // $list[$key]["female"] = (int)$value->female;
                 // $list[$key]["categories"] = $value->yearFrom;
             }
+            $overall[$value->course][$key] = (object)[
+                "male" => (int)$value->male,
+                "female" => (int)$value->female,
+            ]; 
+            
         }
+        
+        
 
         if($list){
+            $result = [
+                "list" => $list,
+                "overall" => $overall
+            ];
             return $this->response
                     ->setStatusCode(200)
                     ->setContentType('application/json')
-                    ->setBody(json_encode($list));
+                    ->setBody(json_encode($result));
         } else {
             $response = [
                 'title' => 'Error',
