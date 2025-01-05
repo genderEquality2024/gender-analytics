@@ -92,7 +92,7 @@
 			</a-col>
 			<a-col :span="16" :lg="14" class="mb-24">
 				<CardBarChart
-					title="Enrollment Summary"
+					title="Enrollment Courses Summary"
 					description="Course over all total of the year"
 					:chartData.sync="seriesSummaryDataEnroll"
 					:groupData.sync="groupSummaryDataEnroll"
@@ -112,7 +112,7 @@
 			</a-col>
 			<a-col :span="16" :lg="14" class="mb-24">
 				<CardBarChart
-					title="Enrollment Summary"
+					title="Graduate Courses Summary"
 					description="Course over all total of the year"
 					:chartData.sync="seriesSummaryDataGraduate"
 					:groupData.sync="groupSummaryDataGraduate"

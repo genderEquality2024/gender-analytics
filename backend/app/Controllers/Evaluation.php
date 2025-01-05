@@ -53,7 +53,7 @@ class Evaluation extends BaseController
         
         $query = $this->evalModel->where([
             "eventId" => $data->eventId
-        ])->get()->getResult();
+        ])->orderBy('order')->get()->getResult();
 
         $list = [];
 
@@ -68,8 +68,10 @@ class Evaluation extends BaseController
                 "yesScore" => $value->yesScore,
                 "scoring" => $value->noScore .' / '. $value->partlyScore .' / '. $value->yesScore,
                 "scoringDesc" =>"No / Partly Yes / Yes",
+                "title" => $value->title,
                 "question" => $value->questionaire,
                 "responseCol" => "",
+                "scoreCol" => "",
                 "remarks" => "",
             ];
         }

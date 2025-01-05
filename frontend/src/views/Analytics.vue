@@ -361,13 +361,13 @@ export default ({
 							female: [],
 						}
 						let groups = []
-						if(typeof res.data === "object"){
-							for (const el in res.data) {
+						if(typeof res.data.list === "object"){
+							for (const el in res.data.list) {
 								groups.push(el)
-								selected.push(res.data[el])
+								selected.push(res.data.list[el])
 							}
 						} else {
-							selected = res.data
+							selected = res.data.list
 						}
 						// selected.sort((a, b) => +(a.group.title > b.group.title) || -(a.group.title < b.group.title))
 						selected.forEach((el) => {
@@ -415,13 +415,13 @@ export default ({
 						}
 						let groups = []
 
-						if(typeof res.data === "object"){
-							for (const el in res.data) {
+						if(typeof res.data.list === "object"){
+							for (const el in res.data.list) {
 								groups.push(el)
-								selected.push(res.data[el])
+								selected.push(res.data.list[el])
 							}
 						} else {
-							selected = res.data
+							selected = res.data.list
 						}
 						
 						// selected.sort((a, b) => +(a.group.title > b.group.title) || -(a.group.title < b.group.title))

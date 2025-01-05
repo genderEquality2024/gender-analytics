@@ -82,7 +82,7 @@
 			</a-menu>
 			<a-menu v-else theme="light" mode="inline">
 				<a-menu-item>
-					<router-link to="/evaluate">
+					<router-link to="/evaluation">
 						<div class="icon" style="text-align: center;">
 							<a-icon type="dashboard" :style="{ fontSize: '18px', color: '#08c', marginLeft: '8px' }" />
 						</div>

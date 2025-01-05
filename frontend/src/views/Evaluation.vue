@@ -48,7 +48,7 @@
 					<!-- <template #title>
 						<h6 class="font-semibold m-0">Event Calendar</h6>
 					</template> -->
-					<a-calendar v-if="eventList.length > 0" @select="getEventDetails" @panelChange="onPanelChange">
+					<a-calendar @select="getEventDetails" @panelChange="onPanelChange">
 						<ul slot="dateCellRender" slot-scope="value" class="events">
 							<li v-for="item in getListData(value)" :key="item.id">
 								{{ item.title }}
@@ -62,51 +62,6 @@
 			
 
 		</a-row>
-
-		<a-modal
-			v-model="addUSerModal"
-			title="Event Details"
-			centered
-		>
-			<template slot="footer">
-                
-				<a-button key="submit" type="primary" :loading="loading" @click="addToEvent">
-					Submit Answer
-				</a-button>
-			</template>
-
-			<a-form :label-col="{ span: 24 }" :wrapper-col="{ span: 24 }">
-				<a-row :gutter="24">
-					<a-col :span="24" :sm="12">
-						<a-form-item label="Title">
-							<a-input
-								v-model="form.title"
-							/>
-						</a-form-item>
-					</a-col>
-					<a-col :span="24" :sm="12">
-						<a-form-item label="Code">
-							<a-input
-								v-model="form.eventCode"
-							/>
-						</a-form-item>
-					</a-col>
-					<a-col :span="24" :sm="24">
-						<a-form-item label="Decription">
-							<a-input
-								type="textarea"
-								v-model="form.description"
-							/>
-						</a-form-item>
-					</a-col>
-					<a-col :span="24" :sm="24">
-						<a-form-item label="Event Date">
-							<a-range-picker @change="onChange" />
-						</a-form-item>
-					</a-col>
-				</a-row>
-			</a-form>
-		</a-modal>
 
 		<a-modal
 			v-if="eventDetails !== null"
@@ -132,6 +87,16 @@
 				</a-button>
 			</template>
 			<a-row v-if="!eventEvaluated" :gutter="24">
+				<a-col :span="24" :sm="24">
+					<a-button
+						type="primary"
+						style="margin-bottom: 16px"
+						@click="generateQuestions"
+					>
+						Evaluate Event
+					</a-button>
+				</a-col>
+				<a-divider>Or</a-divider>
 				<a-col :span="24" :sm="24">
 					<a-alert
                         message="Informational Notes"
@@ -165,6 +130,62 @@
 				</a-col>
 			</a-row>
 		</a-modal>
+
+		<a-drawer
+			v-if="eventDetails !== null"
+			:title="eventDetails.title"
+			placement="left"
+			:width="1220"
+			:closable="false"
+			:visible="visible"
+			@close="onClose"
+		>
+		<a-button
+					type="primary"
+					:loading="uploading"
+					style="margin-top: 16px"
+					@click="submitResponse"
+				>
+						{{ uploading ? 'Uploading' : 'Submit Answer' }}
+				</a-button>
+			<a-table :columns="columns" :data-source="questionaireList" :pagination="false">
+
+				<template slot="question" slot-scope="question">
+					<p v-if="question.title !== '' && question.question === ''"><strong>
+						{{ `${question.order} ${question.title}` }}
+					</strong></p>
+					<p v-if="question.title !== '' && question.question !== ''">
+						<strong>{{ `${question.order} ${question.title}` }}</strong> <br />
+						{{ `${question.question}` }}
+					</p>
+					<p v-else>{{ `${question.order} ${question.question} (${question.scoring})` }}</p>
+				</template>
+				<template slot="response" slot-scope="response">
+					<a-radio-group v-if="response.isCounted === 'yes'" v-model="response.scoreCol">
+						<a-radio-button :value="response.noScore">
+						No
+						</a-radio-button>
+						<a-radio-button :value="response.partlyScore">
+						Partly Yes
+						</a-radio-button>
+						<a-radio-button :value="response.yesScore">
+						Yes
+						</a-radio-button>
+					</a-radio-group>
+				</template>
+				<template slot="score" slot-scope="score">
+					{{ score.scoreCol }}
+				</template>
+				<template slot="result" slot-scope="result">
+					<a-textarea
+						v-if="result.isCounted === 'yes'"
+						v-model="result.remarks"
+						:auto-size="{ minRows: 2, maxRows: 6 }"
+					/>
+				</template>
+
+			</a-table>
+		</a-drawer>
 	</div>
 </template>
 
@@ -206,6 +227,9 @@
 						value: "employee",
 					},
 				],
+
+				questionaireList: [],
+				visible: false,
 			}
 		},
 		computed:{
@@ -213,12 +237,47 @@
 				let token = localStorage.getItem('userToken')
 				return jwtDecode(token);
 			},
+			columns(){
+				return [
+					{
+						title: 'Dimension and question',
+						scopedSlots: { 
+							customRender: 'question' 
+						},
+					},
+					{
+						title: 'Response',
+						scopedSlots: { customRender: 'response' },
+						width: 250,
+					},
+					{
+						title: 'Score for the item/element',
+						scopedSlots: { 
+							customRender: 'score' 
+						},
+					},
+					{
+						title: 'Result or comment',
+						scopedSlots: { 
+							customRender: 'result' 
+						},
+						width: 250,
+					},
+					
+				];
+			}
 		},
 		created(){
 			this.getList();
 		},
 		methods:{
 			moment,
+			showDrawer() {
+				this.visible = true;
+			},
+			onClose() {
+				this.visible = false;
+			},
 			onChange(date, dateString) {
 				this.rangeDate = dateString
 			},
@@ -270,6 +329,53 @@
 					let response = {...res.data}
 					if(!response.error){
 						this.eventList = res.data
+					} else {
+						// show Error
+						console.log('there is some error')
+					}
+				})
+			},
+			async submitResponse(){
+				let response = this.questionaireList.map((el) => {
+					// console.log(el)
+					let scoreValues = {
+                        "noScore": "no",
+                        "partlyScore": "partly",
+                        "yesScore": "yes",
+                    }
+					let scoreKey = ['noScore', 'partlyScore', 'yesScore']
+					for(const i in el){
+						if(scoreKey.includes(i) && el[i] === el.scoreCol && el.isCounted === 'yes'){
+							el.responseCol = scoreValues[i]
+						}
+					}
+
+					return {
+						responseCol: el.responseCol,
+						scoreCol: el.scoreCol,
+						remarks: el.remarks,
+						questionId: el.id,
+						eventId: el.eventId,
+						eid: this.user.userId
+					}
+				});
+
+				console.log(response)
+				this.uploadCSVData(response);
+			},
+			async generateQuestions(){
+				let payload = {
+					eventId: this.eventDetails.eventCode
+				}
+				this.$api.post("evaluation/get/questions", payload).then((res) => {
+					let response = {...res.data}
+					if(!response.error){
+                        let row = res.data
+						this.questionaireList = row
+						this.eventDetailsModal = false
+
+
+						this.showDrawer();
 					} else {
 						// show Error
 						console.log('there is some error')
@@ -469,6 +575,7 @@
 				this.getList();
 				this.csvData = []
 				this.eventDetails = null
+				this.onClose()
 				this.eventDetailsModal = false
 				this.uploading = false
 			
