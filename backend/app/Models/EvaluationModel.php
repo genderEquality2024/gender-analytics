@@ -54,4 +54,14 @@ class EvaluationModel extends Model
         return $query ? true : false;
     }
 
+    public function queryAnswers($where){
+
+        $sql = "SELECT * FROM ".$this->table." a LEFT JOIN ". $this->responseTable ." b ON a.id = b.questionId WHERE a.eventId = :eventId: ORDER BY a.order ";
+       
+        $query = $this->db->query($sql, $where);
+        $results = $query->getResult();
+
+        return $results;
+    }
+
 }

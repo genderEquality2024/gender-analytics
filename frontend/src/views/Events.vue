@@ -131,7 +131,7 @@
                         type="info"
                         show-icon
                     />
-					<a href="/docs/evaluation-format.csv" download="evaluation-format.csv" target="_blank">Click Here to View the Responses</a>
+					<a href="#" @click="generateQuestions">Click Here to View the Responses</a>
 				</a-col>
 				<!-- eventEvaluated: false,
 				eventUploaded: false, -->
@@ -147,6 +147,65 @@
 				</a-col>
 			</a-row>
 		</a-modal>
+
+		<a-drawer
+			v-if="eventDetails !== null"
+			:title="eventDetails.title"
+			placement="left"
+			:width="1220"
+			:closable="false"
+			:visible="visible"
+			@close="onClose"
+		>
+			<a-table :columns="columns" :data-source="questionaireList" :pagination="false">
+				<template slot="title">
+					<h4>GAD Response Result</h4>
+				</template>
+				<template slot="footer">
+					<a-row type="flex">
+						<a-col flex="1 1 200px">
+							TOTAL GAD SCORE— PROJECT IDENTIFICATION AND DESIGN
+							STAGES (Add the score for each of the 10 elements, or the figures in
+							thickly bordered cells.)
+						</a-col>
+						<a-col class="text-right" flex="0 1 300px">
+							<strong>{{ getGADTotal }}</strong>
+						</a-col>
+					</a-row>
+					
+				</template>
+				<template slot="question" slot-scope="question">
+					<p v-if="question.title !== '' && question.question === ''"><strong>
+						{{ `${question.order} ${question.title}` }}
+					</strong></p>
+					<p v-if="question.title !== '' && question.question !== ''">
+						<strong>{{ `${question.order} ${question.title}` }}</strong> <br />
+						{{ `${question.question}` }}
+					</p>
+					<p v-else>{{ `${question.order} ${question.question} (${question.scoring})` }}</p>
+				</template>
+				<template slot="response" slot-scope="response">
+					<a-radio-group v-if="response.isCounted === 'yes'" disabled v-model="response.scoreCol">
+						<a-radio-button :value="response.noScore">
+						No
+						</a-radio-button>
+						<a-radio-button :value="response.partlyScore">
+						Partly Yes
+						</a-radio-button>
+						<a-radio-button :value="response.yesScore">
+						Yes
+						</a-radio-button>
+					</a-radio-group>
+				</template>
+				<template slot="score" slot-scope="score">
+					{{ score.scoreCol }}
+				</template>
+				<template slot="result" slot-scope="result">
+					{{ result.remarks }}
+				</template>
+
+			</a-table>
+		</a-drawer>
 	</div>
 </template>
 
@@ -157,6 +216,8 @@
 	export default ({
 		data() {
 			return {
+				questionaireList: [],
+				visible: false,
 				addUSerModal: false,
 				eventDetailsModal: false,
 				eventDetails: null,
@@ -196,6 +257,39 @@
 				let token = localStorage.getItem('userToken')
 				return jwtDecode(token);
 			},
+			getGADTotal(){
+				let gadTot = this.questionaireList.reduce((a, b) => Number(a) + Number(b.scoreCol), 0)
+				return gadTot
+			},
+			columns(){
+				return [
+					{
+						title: 'Dimension and question',
+						scopedSlots: { 
+							customRender: 'question' 
+						},
+					},
+					{
+						title: 'Response',
+						scopedSlots: { customRender: 'response' },
+						width: 250,
+					},
+					{
+						title: 'Score for the item/element',
+						scopedSlots: { 
+							customRender: 'score' 
+						},
+					},
+					{
+						title: 'Result or comment',
+						scopedSlots: { 
+							customRender: 'result' 
+						},
+						width: 250,
+					},
+					
+				];
+			}
 		},
 		created(){
 			this.getList();
@@ -204,6 +298,31 @@
 			moment,
 			onChange(date, dateString) {
 				this.rangeDate = dateString
+			},
+			showDrawer() {
+				this.visible = true;
+			},
+			onClose() {
+				this.visible = false;
+			},
+			async generateQuestions(){
+				let payload = {
+					eventId: this.eventDetails.eventCode
+				}
+				this.$api.post("evaluation/get/questions/response", payload).then((res) => {
+					let response = {...res.data}
+					if(!response.error){
+                        let row = res.data
+						this.questionaireList = row
+						this.eventDetailsModal = false
+
+
+						this.showDrawer();
+					} else {
+						// show Error
+						console.log('there is some error')
+					}
+				})
 			},
 			async addToEvent(){
 				var start = moment(this.rangeDate[0], "YYYY-MM-DD");

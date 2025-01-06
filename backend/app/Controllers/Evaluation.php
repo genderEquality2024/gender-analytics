@@ -95,6 +95,56 @@ class Evaluation extends BaseController
         
     }
 
+    public function getListEventQuestionaireResponse(){
+        //Get API Request Data from NuxtJs
+        $data = $this->request->getJSON();
+        
+        
+
+        $query = $this->evalModel->queryAnswers([
+            "eventId" => $data->eventId
+        ]);
+
+        $list = [];
+
+        foreach ($query as $key => $value){
+            $list[$key] = [
+                "id" => $value->id,
+                "eventId" => $value->eventId,
+                "order" => $value->order,
+                "isCounted" => $value->isCounted,
+                "noScore" => $value->noScore,
+                "partlyScore" => $value->partlyScore,
+                "yesScore" => $value->yesScore,
+                "scoring" => $value->noScore .' / '. $value->partlyScore .' / '. $value->yesScore,
+                "scoringDesc" =>"No / Partly Yes / Yes",
+                "title" => $value->title,
+                "question" => $value->questionaire,
+                "responseCol" => $value->responseCol,
+                "scoreCol" => $value->scoreCol,
+                "remarks" => $value->remarks,
+            ];
+        }
+
+        if($list){
+            return $this->response
+                    ->setStatusCode(200)
+                    ->setContentType('application/json')
+                    ->setBody(json_encode($list));
+        } else {
+            $response = [
+                'title' => 'Error',
+                'message' => 'No Data Found'
+            ];
+
+            return $this->response
+                    ->setStatusCode(400)
+                    ->setContentType('application/json')
+                    ->setBody(json_encode($response));
+        }
+        
+    }
+
     public function addEventResponse(){
         $data = $this->request->getJSON();
 
