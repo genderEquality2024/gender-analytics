@@ -23,6 +23,7 @@ class Analytics extends BaseController
                 "yearFrom"=>$value->yearFrom,
                 "term"=>$value->term,
                 "course"=>$value->course,
+                "classYear"=>$value->classYear,
                 "reportType"=>$value->reportType,
             ])->get()->getRow();
             
@@ -30,6 +31,8 @@ class Analytics extends BaseController
             if(!$check){
                 $payload = json_decode(json_encode($value), true);
                 $this->analyticsModel->insert($payload);
+            } else {
+                print_r($check);
             }
             
         }
