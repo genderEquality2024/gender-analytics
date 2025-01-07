@@ -197,20 +197,20 @@ export default ({
 		}
 	},
     computed:{
-        yearMultipleOpts(){
-            let res = []
-            let startDate = 1997
+      yearMultipleOpts() {
+				let res = [];
+				let startDate = 1997;
+				let currentYear = new Date().getFullYear();
 
-            for (let index = 27; index < 90; index++) {
-                let val = moment(startDate).add(index, 'y').format('YYYY')
-                res.push({
-                    label: val,
-                    value: val
-                })
-            }
+				for (let year = startDate; year <= currentYear; year++) {
+					res.push({
+					label: year.toString(),
+					value: year.toString()
+					});
+				}
 
-            return res
-        },
+				return res;
+			}
     },
     created(){
       this.getCourceList()

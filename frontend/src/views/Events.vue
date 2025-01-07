@@ -109,6 +109,38 @@
 		>	
 			<template slot="footer">
 				<a-button
+					v-if="editEvent"
+					type="danger"
+					style="margin-top: 16px"
+					@click="editEvent = false"
+				>
+					Cancel Edit
+				</a-button>
+				<a-button
+					v-if="editEvent"
+					type="success"
+					style="margin-top: 16px"
+					@click="updateDetails"
+				>
+					Save
+				</a-button>
+				<a-button
+					v-if="!editEvent"
+					type="danger"
+					style="margin-top: 16px"
+					@click="deleteEventSchedule"
+				>
+					Delete Schedule
+				</a-button>
+				<a-button
+					v-if="!editEvent"
+					type="primary"
+					style="margin-top: 16px"
+					@click="editEventDetails"
+				>
+					Edit
+				</a-button>
+				<a-button
 					type="primary"
 					:disabled="csvData.length === 0"
 					:loading="uploading"
@@ -117,8 +149,9 @@
 				>
 						{{ uploading ? 'Uploading' : 'Start Upload' }}
 				</a-button>
+				
 			</template>
-			<a-row :gutter="24">
+			<a-row v-if="!editEvent" :gutter="24">
 				<a-col :span="24" :sm="24">
 					<a-form-item label="Description">
 						<span>{{ eventDetails.description }}</span>
@@ -146,6 +179,25 @@
 					<a href="/docs/evaluation-format.csv" download="evaluation-format.csv" target="_blank">Click Here to Download Template</a>
 				</a-col>
 			</a-row>
+			<a-form v-if="editEvent" :label-col="{ span: 24 }" :wrapper-col="{ span: 24 }">
+				<a-row :gutter="24">
+					<a-col :span="24" :sm="24">
+						<a-form-item label="Title">
+							<a-input
+								v-model="form.title"
+							/>
+						</a-form-item>
+					</a-col>
+					<a-col :span="24" :sm="24">
+						<a-form-item label="Decription">
+							<a-input
+								type="textarea"
+								v-model="form.description"
+							/>
+						</a-form-item>
+					</a-col>
+				</a-row>
+			</a-form>
 		</a-modal>
 
 		<a-drawer
@@ -217,6 +269,7 @@
 		data() {
 			return {
 				questionaireList: [],
+				editEvent: false,
 				visible: false,
 				addUSerModal: false,
 				eventDetailsModal: false,
@@ -296,6 +349,47 @@
 		},
 		methods:{
 			moment,
+			editEventDetails(){
+				this.editEvent = true
+				this.form = {
+					title: this.eventDetails.title,
+					description: this.eventDetails.description,
+				}
+			},
+			updateDetails(){
+				this.$api.post("events/edit", {
+					dataId: this.eventDetails.id,
+					form: {
+						title: this.form.title,
+						description: this.form.description,
+					}
+				}).then((res) => {
+					let response = {...res.data}
+					if(!response.error){
+						console.log('data deleted')
+						this.getList()
+						this.eventDetailsModal = false
+					} else {
+						// show Error
+						console.log('there is some error')
+					}
+				})
+			},
+			deleteEventSchedule(){
+				this.$api.post("events/delete", {
+					dataId: this.eventDetails.id
+				}).then((res) => {
+					let response = {...res.data}
+					if(!response.error){
+						console.log('data deleted')
+						this.getList()
+						this.eventDetailsModal = false
+					} else {
+						// show Error
+						console.log('there is some error')
+					}
+				})
+			},
 			onChange(date, dateString) {
 				this.rangeDate = dateString
 			},

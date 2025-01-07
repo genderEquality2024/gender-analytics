@@ -66,6 +66,8 @@ $routes->group('gender_analytics/api/v1', function($routes){
 
 	$routes->group('events', function($routes){
 		$routes->post('add', 'Events::addEventCalendar');
+		$routes->post('edit', 'Events::editEventCalendar');
+		$routes->post('delete', 'Events::deleteEventCalendar');
 		$routes->post('list', 'Events::getListEvents');
 	});
 
@@ -82,6 +84,7 @@ $routes->group('gender_analytics/api/v1', function($routes){
 		$routes->get('getBranches', 'Misc::getBranches');
 		$routes->get('getAddress/(:any)', 'Misc::getAddress/$1');
 		$routes->post('database/backup', 'BackupController::backupDatabase');
+		$routes->post('database/restore', 'BackupController::restoreDatabase');
 	});
 
 	

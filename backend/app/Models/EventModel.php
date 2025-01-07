@@ -34,4 +34,16 @@ class EventModel extends Model
     protected $validationMessages = [];
     protected $skipValidation     = false;
 
+    public function updateEventInfo($where, $setData){
+
+        $query = $this->db->table($this->table)->set($setData)->where($where)->update();
+        return $query ? true : false;
+
+    }
+
+    public function deleteEvent($where){
+        $query = $this->db->table($this->table)->where($where)->delete();
+        return $query ? true : false;
+    }
+
 }

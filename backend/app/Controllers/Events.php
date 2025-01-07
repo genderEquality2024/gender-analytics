@@ -11,6 +11,83 @@ class Events extends BaseController
         $this->eventModel = new EventModel();
     }
 
+    public function deleteEventCalendar(){
+        //Get API Request Data from NuxtJs
+        $data = $this->request->getJSON();
+
+        $where = [
+            'id' => $data->dataId
+        ];
+        // before delete validate if there is anyone applied
+        
+        
+        //Select Query for finding User Information
+        $query = $this->eventModel->deleteEvent($where);
+
+        if($query){
+
+            $response = [
+                'title' => 'Delete successful',
+                'message' => 'Data is deleted'
+            ];
+ 
+            return $this->response
+                    ->setStatusCode(200)
+                    ->setContentType('application/json')
+                    ->setBody(json_encode($response));
+            
+        } else {
+            $response = [
+                'title' => 'Update Failed!',
+                'message' => 'Please check your data and connect to your Admin'
+            ];
+ 
+            return $this->response
+                    ->setStatusCode(400)
+                    ->setContentType('application/json')
+                    ->setBody(json_encode($response));
+        }
+        
+    }
+    public function editEventCalendar(){
+        //Get API Request Data from NuxtJs
+        $data = $this->request->getJSON();
+        $setData = json_decode(json_encode($data->form), true);
+
+
+        $where = [
+            "id" => $data->dataId
+        ];
+    
+        $query = $this->eventModel->updateEventInfo($where, $setData);
+
+        if($query){
+
+            $response = [
+                'title' => 'Update Information',
+                'message' => 'Event data has been successfully updated.'
+            ];
+ 
+            return $this->response
+                    ->setStatusCode(200)
+                    ->setContentType('application/json')
+                    ->setBody(json_encode($response));
+            
+        } else {
+            $response = [
+                'title' => 'Registration Failed!',
+                'message' => 'Please check your data.'
+            ];
+ 
+            return $this->response
+                    ->setStatusCode(400)
+                    ->setContentType('application/json')
+                    ->setBody(json_encode($response));
+        }
+        // print_r($data);
+        // exit();
+        
+    }
     public function addEventCalendar(){
         //Get API Request Data from NuxtJs
         $data = $this->request->getJSON();

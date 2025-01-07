@@ -83,6 +83,32 @@
 				</a-col>
 			</a-row>
 		</a-modal>
+		<a-modal
+			v-model="restoreModal"
+			title="Restore Database"
+			centered
+		>
+			<template slot="footer">
+				<a-button key="submit" type="primary" :loading="loading" @click="restoreDb">
+					Confirm
+				</a-button>
+			</template>
+			<a-row :gutter="24">
+				<a-col :span="24" :sm="24">
+					<a-form-item label="Upload SQL File">
+						<a-upload :file-list="fileList" :remove="handleRemove" :before-upload="beforeUpload">
+							<a-button> <a-icon type="upload" /> Select File </a-button>
+						</a-upload>
+					</a-form-item>
+					<a-form-item label="Password">
+						<a-input
+							type="password"
+							v-model="password"
+						/>
+					</a-form-item>
+				</a-col>
+			</a-row>
+		</a-modal>
 	</div>
 </template>
 
@@ -151,7 +177,7 @@
 				password: '',
 				backupModal: false,
 				restoreModal: false,
-				
+				fileracker: null,
 			}
 		},
 		computed: {
@@ -161,6 +187,13 @@
 			},
 		},
 		methods:{
+			handleRemove(file) {
+				this.fileracker = null;
+			},
+			async beforeUpload(file) {
+				this.fileracker = file;
+				return false
+			},
 			openDBModal(type){
 				if(type === 'Download'){
 					this.backupModal = true;
@@ -196,6 +229,40 @@
 					},
 					onCancel() {},
 				});
+			},
+			restoreDb(){
+				let vm = this;
+				this.$confirm({
+					title: 'Backup Database',
+					content: `Are you sure you want to backup the database?`,
+					onOk() {
+						if (!vm.fileracker) {
+							console.log('No file selected');
+							return;
+						}
+
+						const formData = new FormData();
+						formData.append('backup_file', vm.fileracker);
+						formData.append('userId', vm.user.userId);
+						formData.append('password', vm.password);
+
+						vm.$api.post('misc/database/restore', formData, {
+							headers: {
+							'Content-Type': 'multipart/form-data'
+							}
+						}).then((res) => {
+							let response = { ...res.data };
+							if (!response.error) {
+								console.log('Database restored successfully');
+								vm.restoreModal = false;
+							} else {
+								console.log('There is some error');
+							}
+						})
+					},
+					onCancel() {},
+				});
+				
 			},
 		}
 	})

@@ -148,20 +148,20 @@ import { sum } from "pdf-lib";
 			WidgetCounter
 		},
 		computed:{
-			yearMultipleOpts(){
-				let res = []
-				let startDate = 1997
+			yearMultipleOpts() {
+				let res = [];
+				let startDate = 1997;
+				let currentYear = new Date().getFullYear();
 
-				for (let index = 27; index < 90; index++) {
-					let val = moment(startDate).add(index, 'y').format('YYYY')
+				for (let year = startDate; year <= currentYear; year++) {
 					res.push({
-						label: val,
-						value: val
-					})
+					label: year.toString(),
+					value: year.toString()
+					});
 				}
 
-				return res
-			},
+				return res;
+			}
 		},
 		data() {
 			return {
