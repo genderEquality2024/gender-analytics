@@ -199,11 +199,11 @@ export default ({
 			this.openPrint = true
 		},
 		async exportCSV(){
-			const content = [this.columns.map(col => this.wrapCsvValue(col.key))].concat(
-				this.users.map(row => this.columns.map(col => this.wrapCsvValue(
-					typeof col.key === 'function'
+			const content = [this.columns.map(col => this.wrapCsvValue(col.dataIndex))].concat(
+				this.filteredUser.map(row => this.columns.map(col => this.wrapCsvValue(
+					typeof col.dataIndex === 'function'
 					? col.field(row)
-					: row[ col.field === void 0 ? col.key : col.key ],
+					: row[ col.field === void 0 ? col.dataIndex : col.dataIndex ],
 					col.format,
 					row
 				)).join(','))

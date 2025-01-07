@@ -171,8 +171,8 @@
 			async databaseAction(){
 				let vm = this;
 				this.$confirm({
-					title: 'Do you want to delete these items?',
-					content: ``,
+					title: 'Backup Database',
+					content: `Are you sure you want to backup the database?`,
 					onOk() {
 						let payload = {
 							userId: vm.user.userId,
