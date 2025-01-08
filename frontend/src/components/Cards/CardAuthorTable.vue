@@ -228,7 +228,7 @@
 						uid: this.userId,
 						status: 1
 					}
-					
+					api = "users/update"
 				} else {
 					payload = {
 						...this.form,

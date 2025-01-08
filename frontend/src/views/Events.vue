@@ -211,6 +211,13 @@
 			:visible="visible"
 			@close="onClose"
 		>
+			<a-button
+				type="primary"
+				style="margin-top: 16px"
+				@click="openPrint = true"
+			>
+				Print Result
+			</a-button>
 			<a-table :columns="columns" :data-source="questionaireList" :pagination="false">
 				<template slot="title">
 					<h4>GAD Response Result</h4>
@@ -260,6 +267,13 @@
 
 			</a-table>
 		</a-drawer>
+
+
+		<ModalPrintResponse
+			:openPrint="openPrint"
+			:dataVal="questionaireList"
+			@closePrint="openPrint = false"
+		></ModalPrintResponse>
 	</div>
 </template>
 
@@ -267,9 +281,16 @@
 	import { jwtDecode } from 'jwt-decode';
 	import * as d3 from "d3"
 	import moment from 'moment'
+	import ModalPrintResponse from '../components/Modals/ModalPrintResponse.vue';
+	
+
 	export default ({
+		components: {
+			ModalPrintResponse
+		},
 		data() {
 			return {
+				openPrint: false,
 				questionaireList: [],
 				editEvent: false,
 				visible: false,
@@ -411,10 +432,14 @@
 				this.$api.post("evaluation/get/questions/response", payload).then((res) => {
 					let response = {...res.data}
 					if(!response.error){
-                        let row = res.data
-						this.questionaireList = row
+                        let row = res.data.map((el, index) => {
+							return {
+								...el,
+								order: Number(el.order)
+							}
+						})
+						this.questionaireList = row.sort((a, b) => +(a.order > b.order) || -(a.order < b.order))
 						this.eventDetailsModal = false
-
 
 						this.showDrawer();
 					} else {

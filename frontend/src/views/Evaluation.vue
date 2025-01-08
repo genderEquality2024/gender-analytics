@@ -375,8 +375,14 @@
 				this.$api.post("evaluation/get/questions", payload).then((res) => {
 					let response = {...res.data}
 					if(!response.error){
-                        let row = res.data
-						this.questionaireList = row
+                        let row = res.data.map((el, index) => {
+							return {
+								...el,
+								order: Number(el.order) || ''
+							}
+						})
+						
+						this.questionaireList = row.sort((a, b) => +(a.order > b.order) || -(a.order < b.order))
 						this.eventDetailsModal = false
 
 
