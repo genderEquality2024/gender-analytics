@@ -106,6 +106,8 @@
 			v-model="eventDetailsModal"
 			:title="eventDetails.title"
 			centered
+			@cancel="handleCancel"
+        	@ok="handleCancel"
 		>	
 			<template slot="footer">
 				<a-button
@@ -349,6 +351,9 @@
 		},
 		methods:{
 			moment,
+			handleCancel(){
+				this.eventDetailsModal = false
+			},
 			editEventDetails(){
 				this.editEvent = true
 				this.form = {

@@ -105,12 +105,13 @@ class Auth extends BaseController
             
         } else {
             $response = [
+                'error' => 404,
                 'title' => 'Invalid Credentials',
                 'message' => 'Please check your username or password'
             ];
 
             return $this->response
-                    ->setStatusCode(404)
+                    ->setStatusCode(200)
                     ->setContentType('application/json')
                     ->setBody(json_encode($response));
         }

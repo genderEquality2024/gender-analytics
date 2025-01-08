@@ -143,6 +143,39 @@ class Users extends BaseController
         // exit();
         
     }
+    public function ChangePassword(){
+        
+        //Get API Request Data from NuxtJs
+        $payload = $this->request->getJSON();
+        $payload->newPassword = sha1($payload->newPassword);
+
+        $where = ['id' => $payload->id];
+        $updateData = ['password' => $payload->newPassword];
+
+        $updatePassword =  $this->userModel->updatePassword($where, $updateData);
+
+        if($updatePassword){
+            $response = [
+                'title' => 'Change Password',
+                'message' => 'Your successfully change password.'
+            ];
+ 
+            return $this->response
+                    ->setStatusCode(200)
+                    ->setContentType('application/json')
+                    ->setBody(json_encode($response));
+        } else {
+            $response = [
+                'title' => 'Change Password Failed!',
+                'message' => 'Please check your data.'
+            ];
+ 
+            return $this->response
+                    ->setStatusCode(400)
+                    ->setContentType('application/json')
+                    ->setBody(json_encode($response));
+        }
+    }
     public function updateUserStatus(){
         //Get API Request Data from NuxtJs
         $data = $this->request->getJSON();

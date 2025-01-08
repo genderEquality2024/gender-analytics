@@ -72,5 +72,12 @@ class UsersModel extends Model
 
     }
 
+    public function updatePassword($where, $setData){
+
+        $query = $this->db->table($this->table)->set($setData)->where($where)->update();
+        return $query ? true : false;
+
+    }
+
 
 }

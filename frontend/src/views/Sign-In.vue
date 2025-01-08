@@ -82,8 +82,8 @@
 					if ( !err ) {
 						this.$api.post("auth/login", values).then((res) => {
 							let response = {...res.data}
-							let jwtData = jwtDecode(response.jwt);
 							if(!response.error){
+								let jwtData = jwtDecode(response.jwt);
 								localStorage.setItem("userToken", response.jwt)
 								if(jwtData.aud === 'admin'){
 									this.$router.push("/dashboard")
@@ -92,6 +92,7 @@
 								}
 							} else {
 							// show Error
+								this.$message.error(response.message)
 							}
 						})
 					}

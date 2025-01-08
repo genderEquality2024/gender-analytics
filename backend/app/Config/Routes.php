@@ -44,6 +44,7 @@ $routes->group('gender_analytics/api/v1', function($routes){
 		$routes->post('create', 'Users::registerUser');
 		$routes->post('update', 'Users::updateUser');
 		$routes->post('update/status', 'Users::updateUserStatus');
+		$routes->post('changePassword', 'Users::ChangePassword');
 		$routes->get('getUsersList', 'Users::getAllUserList');
 		$routes->post('getUserById', 'Users::getUserDetails');
 	});

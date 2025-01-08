@@ -7,6 +7,7 @@
         width="100%"
         :closable="false"
         @cancel="handleCancel"
+        @ok="handleCancel"
 	>
         <iframe id="pdf" style="width: 100%; height: 80dvh; border: none;"></iframe>
 	</a-modal>
@@ -97,6 +98,13 @@ export default ({
                     font:fontBold,
                     color: rgb(0, 0, 0),
                 })
+                elpage.drawText(`School Year`, {
+                    x: 210,
+                    y: height - 80,
+                    size: 9,
+                    font:fontBold,
+                    color: rgb(0, 0, 0),
+                })
                 elpage.drawText(`Report`, {
                     x: 270,
                     y: height - 80,
@@ -139,6 +147,14 @@ export default ({
                     let edata = paginated[idx-1]
                     elpage.drawText(`${edata.course || '--'}`, {
                         x: 15,
+                        y: stdContentHeight + 135,
+                        lineHeight: 10,
+                        maxWidth: 230,
+                        size: 9,
+                        color: rgb(0, 0, 0),
+                    })
+                    elpage.drawText(`${edata.yearFrom || '--'}`, {
+                        x: 210,
                         y: stdContentHeight + 135,
                         lineHeight: 10,
                         maxWidth: 230,

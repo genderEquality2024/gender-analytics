@@ -68,6 +68,8 @@
 			v-model="eventDetailsModal"
 			:title="eventDetails.title"
 			centered
+			@cancel="handleCancel"
+        	@ok="handleCancel"
 		>	
 			<template v-if="!eventEvaluated" slot="footer">
                 <a-button  @click="downloadQuestions" type="link">
@@ -272,6 +274,9 @@
 		},
 		methods:{
 			moment,
+			handleCancel(){
+				this.eventDetailsModal = false
+			},
 			showDrawer() {
 				this.visible = true;
 			},
