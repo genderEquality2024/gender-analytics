@@ -111,7 +111,7 @@ class Analytics extends BaseController
                     "value" => $value->course,
                 ];
             } else {
-                $list[$key] = [
+                $list[$value->term][$key] = [
                     "label" => $data->reportType !== 'employee' ? $value->course : $value->term,
                     "value" => $data->reportType !== 'employee' ? $value->course : $value->term
                 ];
@@ -260,27 +260,17 @@ class Analytics extends BaseController
             "yearFrom" => $data->from,
             "yearTo" => $data->to,
             "reportType" => $data->reportType,
-            "course" => $data->course,
+            "course" => $data->department,
+            "term" => $data->course,
         ];
-
-        if($data->reportType === 'employee'){
-            $where = [
-                "yearFrom" => $data->from,
-                "yearTo" => $data->to,
-                "reportType" => $data->reportType,
-                "term" => $data->course,
-                "course" => $data->department,
-            ];
-        }
 
         $query = $this->analyticsModel->getAllYearRangeData($where);
         $list = [];
-
         foreach ($query as $key => $value){
             if($data->reportType === 'enrollment'){
                 $list[$key] = (object)[
                     "group" => (object)[
-                        "title"=> $value->yearFrom ." (". $value->classYear ." - ". $value->term .")",
+                        "title"=> $value->yearFrom ." (". $value->classYear .")",
                         "cols"=> 2,
                     ],
                     "series" => [

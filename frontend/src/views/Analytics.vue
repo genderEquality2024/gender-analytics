@@ -58,22 +58,41 @@
           </a-form-item>
         </a-form>
 			</a-col>
+      <a-col v-if="filters.reportType !== 'employee'" :span="24" :lg="6" class="mb-24">
+				<a-form :label-col="{ span: 24 }" :wrapper-col="{ span: 24 }">
+          <a-form-item label="Term/Semester">
+            <a-select
+                v-model="filters.course"
+                v-decorator="[
+                    'term',
+                    { rules: [{ required: true, message: 'Please select your gender!' }] },
+                ]"
+                placeholder="Select a School Term"
+                :options="courseOpt"
+                @change="getDepartmentSelection"
+            />
+          </a-form-item>
+        </a-form>
+			</a-col>
 			<a-col v-if="filters.reportType !== 'employee'" :span="24" :lg="6" class="mb-24">
 				<a-form :label-col="{ span: 24 }" :wrapper-col="{ span: 24 }">
           <a-form-item label="School/Courses">
             <a-select
-                v-model="filters.course"
+                v-model="filters.department"
                 v-decorator="[
                     'course',
                     { rules: [{ required: true, message: 'Please select your gender!' }] },
                 ]"
                 placeholder="Select a School/Course"
-                :options="courseOpt"
+                :options="schoolOpt"
                 @change="getListSelection"
             />
           </a-form-item>
         </a-form>
 			</a-col>
+			
+
+
 			<a-col v-if="filters.reportType === 'employee'" :span="24" :lg="6" class="mb-24">
 				<a-form :label-col="{ span: 24 }" :wrapper-col="{ span: 24 }">
           <a-form-item label="Employee Category">
@@ -158,6 +177,7 @@ export default ({
         reportType: 'enrollment',
         course: '',
         department: '',
+        term: '',
       },
 
       selectedYears: {
@@ -230,21 +250,32 @@ export default ({
               let response = {...res.data}
               if(!response.error){
 
-                if(this.filters.reportType === 'employee'){
-                  this.courseOpt = []
-                  this.departments = res.data
-                  for (const i in res.data) {
-                    this.courseOpt.push({
-                      label: i,
-                      value: i,
-                    })
-                  }
-                  this.filters.course = this.courseOpt[0].value
-                  this.getDepartmentSelection()
-                } else {
-                  this.courseOpt = res.data
-                  this.filters.course = this.courseOpt[0].value
+                this.courseOpt = []
+                this.departments = res.data
+                for (const i in res.data) {
+                  this.courseOpt.push({
+                    label: i,
+                    value: i,
+                  })
                 }
+                this.filters.course = this.courseOpt[0].value
+                this.getDepartmentSelection()
+                
+                // if(this.filters.reportType === 'employee'){
+                //   this.courseOpt = []
+                //   this.departments = res.data
+                //   for (const i in res.data) {
+                //     this.courseOpt.push({
+                //       label: i,
+                //       value: i,
+                //     })
+                //   }
+                //   this.filters.course = this.courseOpt[0].value
+                //   this.getDepartmentSelection()
+                // } else {
+                //   this.courseOpt = res.data
+                //   this.filters.course = this.courseOpt[0].value
+                // }
                 
                 this.getListSelection()
               } else {
@@ -253,6 +284,14 @@ export default ({
               }
             })
         },
+        // getTermSelection(){
+        //   let typeData = typeof this.courseOpt[this.filters.term];
+        //   this.schoolOpt = typeData === 'object' ? Object.values(this.departments[this.filters.course]) : this.departments[this.filters.course]
+          
+        //   this.filters.department = this.schoolOpt[0].value
+
+        //   this.getListSelection()
+        // },
         getDepartmentSelection(){
           let typeData = typeof this.departments[this.filters.course];
           this.schoolOpt = typeData === 'object' ? Object.values(this.departments[this.filters.course]) : this.departments[this.filters.course]
@@ -267,6 +306,8 @@ export default ({
               to: this.selectedYears.to,
               ...this.filters
             }
+
+            console.log(payload)
             this.$api.post("analytics/get/graph", payload).then((res) => {
               let response = {...res.data}
               if(!response.error){
@@ -350,7 +391,7 @@ export default ({
 					...this.selectedYears,
 					reportType: 'enrollment',
           page: 'analytics',
-          course: this.filters.course,
+          course: this.filters.department,
 				}
 				this.$api.post("analytics/get/graph/dashboard", payload).then((res) => {
 					let response = {...res.data}
@@ -403,7 +444,7 @@ export default ({
 					...this.selectedYears,
 					reportType: 'graduate',
           page: 'analytics',
-          course: this.filters.course,
+          course: this.filters.department,
 				}
 				this.$api.post("analytics/get/graph/dashboard", payload).then((res) => {
 					let response = {...res.data}

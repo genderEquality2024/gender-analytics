@@ -77,13 +77,13 @@ class AnalyticsModel extends Model
         // $results = $query->getResult();
 
         // return $results;
-        $sql = "";
-        if($where['reportType'] === 'employee'){
-            $sql = "SELECT * FROM ".$this->table." WHERE yearFrom BETWEEN :yearFrom: AND :yearTo: AND reportType = :reportType: AND course = :course: AND term = :term:";
-        } else {
-            $sql = "SELECT * FROM ".$this->table." WHERE yearFrom BETWEEN :yearFrom: AND :yearTo: AND reportType = :reportType: AND course = :course:";
-        }
-       
+        // $sql = "";
+        // if($where['reportType'] === 'employee'){
+        //     $sql = "SELECT * FROM ".$this->table." WHERE yearFrom BETWEEN :yearFrom: AND :yearTo: AND reportType = :reportType: AND course = :course: AND term = :term:";
+        // } else {
+        //     $sql = "SELECT * FROM ".$this->table." WHERE yearFrom BETWEEN :yearFrom: AND :yearTo: AND reportType = :reportType: AND course = :course:";
+        // }
+        $sql = "SELECT * FROM ".$this->table." WHERE yearFrom BETWEEN :yearFrom: AND :yearTo: AND reportType = :reportType: AND course = :course: AND term = :term:";
        
         $query = $this->db->query($sql, $where);
         $results = $query->getResult();
@@ -93,7 +93,7 @@ class AnalyticsModel extends Model
 
     public function getOptionsGraph($where){
 
-        $sql = "SELECT course FROM ".$this->table." WHERE yearFrom BETWEEN :yearFrom: AND :yearTo: AND reportType = :reportType: GROUP BY course";
+        $sql = "SELECT term,course FROM ".$this->table." WHERE yearFrom BETWEEN :yearFrom: AND :yearTo: AND reportType = :reportType:";
        
         $query = $this->db->query($sql, $where);
         $results = $query->getResult();
