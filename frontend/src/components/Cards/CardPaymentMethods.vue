@@ -92,6 +92,12 @@
 		methods: {
 			changePassword(){
 				let vm = this;
+
+				if(this.password.length === 0 || this.reTypePassword.length === 0){
+					vm.$message.error('Please fill in all fields')
+					return false
+				}
+
 				if(this.password === this.reTypePassword){
 					this.$confirm({
 						title: 'Change Password',

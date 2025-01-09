@@ -138,11 +138,11 @@ export default ({
                 for (let idx = 1; idx <= paginated.length; idx++) {
                     let edata = paginated[idx-1]
                     
-                    elpage.drawText(`${edata.order} ${edata.title || edata.question}`, {
+                    elpage.drawText(`${edata.order || ''} ${edata.title || edata.question}`, {
                         x: 15,
                         y: stdContentHeight + 135,
                         lineHeight: 10,
-                        maxWidth: 1300,
+                        maxWidth: 330,
                         size: 9,
                         color: rgb(0, 0, 0),
                     })

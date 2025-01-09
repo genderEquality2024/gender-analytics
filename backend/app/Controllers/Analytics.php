@@ -280,7 +280,7 @@ class Analytics extends BaseController
             if($data->reportType === 'enrollment'){
                 $list[$key] = (object)[
                     "group" => (object)[
-                        "title"=> $value->yearFrom ." - ". $value->term,
+                        "title"=> $value->yearFrom ." (". $value->classYear ." - ". $value->term .")",
                         "cols"=> 2,
                     ],
                     "series" => [
@@ -309,7 +309,7 @@ class Analytics extends BaseController
             } else if($data->reportType === 'graduate'){
                 $list[$key]["male"] = (int)$value->male;
                 $list[$key]["female"] = (int)$value->female;
-                $list[$key]["categories"] = $value->yearFrom ." - ". $value->term;
+                $list[$key]["categories"] = $value->yearFrom ." (". $value->classYear ." - ". $value->term .")";
             }
         }
 
